@@ -6,9 +6,19 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "axios": "^0.21.1",
+    "bootstrap": "^5.0.2",
+    "chalk": "^4.1.1",
+    "classnamed-components": "^1.0.3",
+    "core-decorators": "^0.20.0",
+    "firebase": "^8.7.0",
     "react": "^17.0.2",
+    "react-bootstrap": "^2.0.0-beta.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
+    "rpg-dice-roller": "^5.0.0",
+    "sortablejs": "^1.14.0",
+    "uuidv4": "^6.2.11",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
@@ -34,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^4.3.5"
   }
 }
