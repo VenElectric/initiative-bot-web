@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import {
 	Badge,
 	OverlayTrigger,
@@ -6,23 +6,21 @@ import {
 } from "react-bootstrap";
 
 import { status_effects } from "../Interfaces/Interfaces";
-
-// interface ImportedIcons {
-//     [key: string]: React.FC<{children:React.ReactNode}>
-//  }
  
 
 export default function EffectsSlot({effect}: {effect:status_effects}) {
+
+
 
     return (
         <OverlayTrigger
         key={effect.id}
         placement="top"
         overlay={
-            <Tooltip id={effect.id}>{effect.name}</Tooltip>
+            <Tooltip id={effect.id}>{effect.effect}</Tooltip>
         }
     >
-       <Badge style={{backgroundColor:`${effect.color}`,fontSize:'1'}}>*</Badge>
+       <Badge className='effectslot'>{effect.name}</Badge>
     </OverlayTrigger>
     )
 }

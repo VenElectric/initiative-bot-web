@@ -14,16 +14,18 @@ import {SocketContext} from './Context/SocketContext'
 
 
 function App() {
-  // const location = useLocation();
-  // const sessionid = new URLSearchParams(location.search).get('session_id')
+  const location = useLocation();
+  const sessionid = new URLSearchParams(location.search).get('session_id')
+  localStorage.setItem('session_id',sessionid)
   const socket = useContext(SocketContext);
-  const sessionid = '723744588346556419'
+ 
   
 useEffect(() => {
   
   socket.emit('create', String(sessionid));
   return () => {
     socket.disconnect()
+    localStorage.clear();
   }
 }, [])
 

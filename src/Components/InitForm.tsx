@@ -6,22 +6,26 @@ import {
 	InputGroup,
 	FormControl,
 	Button,
+	Modal
 } from "react-bootstrap";
 import { InitContext } from "../Context/InitContext";
 import { SocketContext } from "../Context/SocketContext";
 
-export default function InitForm() {
+export default function InitForm({handle_submit}:{handle_submit:any}) {
 
-	const {add_init} = useContext(InitContext)
 	const socket = useContext(SocketContext);
 	return (
-		<div>
-			<Form onSubmit={add_init} id='init-form'>
+		<>
+		<Modal.Header closeButton className='spellcardheader'>
+			<Modal.Title>Add Initiative</Modal.Title>
+			</Modal.Header>
+			<Modal.Body className='spellcard'>
+			<Form onSubmit={handle_submit} id='init-form'>
 				<Form.Label htmlFor="inlineFormInput" visuallyHidden>
 					Character Name
 				</Form.Label>
 				<Form.Control
-					className="mb-2"
+					className="mb-2 screeninput"
 					id="inlineFormInput"
 					placeholder="Character Name"
 				/>
@@ -35,7 +39,7 @@ export default function InitForm() {
 							</Tooltip>
 						}
 					>
-						<InputGroup.Text>?</InputGroup.Text>
+						<InputGroup.Text className='initrecordinputtext'>?</InputGroup.Text>
 					</OverlayTrigger>
 					<Form.Label htmlFor="inlineFormInput" visuallyHidden>
 						Character Type
@@ -56,9 +60,10 @@ export default function InitForm() {
 							<Tooltip id={`1`}>Your total initiative. D20+Modifier</Tooltip>
 						}
 					>
-						<InputGroup.Text>?</InputGroup.Text>
+						<InputGroup.Text className='initrecordinputtext'>?</InputGroup.Text>
 					</OverlayTrigger>
 					<FormControl
+					className='screeninput'
 						id="inlineFormInputGroup"
 						placeholder="Initiative Total"
 					/>
@@ -83,18 +88,20 @@ export default function InitForm() {
 							</Tooltip>
 						}
 					>
-						<InputGroup.Text>?</InputGroup.Text>
+						<InputGroup.Text className='initrecordinputtext'>?</InputGroup.Text>
 					</OverlayTrigger>
 					<FormControl
+					className='screeninput'
 						id="inlineFormInputGroup"
 						placeholder="Initiative Modifier"
 					/>
 				</InputGroup>
 
-				<Button type="submit" className="mb-2">
+				<Button type="submit" className="mb-2 screenbutborder">
 					Submit
 				</Button>
 			</Form>
-		</div>
+			</Modal.Body>
+		</>
 	);
 }

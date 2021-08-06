@@ -2,7 +2,7 @@
 export interface status_effects {
     name: string
     id: string
-    color: string
+    effect: string
 }
 
 export interface InitiativeLine {
@@ -14,7 +14,6 @@ export interface InitiativeLine {
     line_order: number
     npc: boolean
     status_effects: status_effects[]
-    color: string
 }
 
 export interface SpellLine {
@@ -23,7 +22,7 @@ export interface SpellLine {
     effect: string
     duration_num: number
     duration_type: number
-    color: string
+    user_ids: string[]
 }
 
 export interface SessionData {
@@ -31,4 +30,10 @@ export interface SessionData {
     sort: boolean
     initiative: InitiativeLine[] | InitiativeLine
     room: string
+}
+
+export interface TargetData {
+    id:string
+    name:string
+    status_effects:status_effects[]
 }

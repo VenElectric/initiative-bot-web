@@ -1,5 +1,273 @@
+
 .listfeed {
-    padding-left: 30rem;
-    padding-right: 30rem;
+    padding-left: 35%;
+    padding-right: 35%;
+   
+}
+
+.spellcard {
+    color: #33ff00;
+    background-color: #0c191c;
+}
+
+.spellcardheader {
+    color: #33ff00;
+    background-color: #0c191c;
+}
+
+h2,h3 {
+    color:#33ff00;
+}
+
+.effectslot {
+    font-family: 'modern_sansregular';
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border-style:ridge;
+    border-color:#33ff00;
+    border-width:1px;
+    padding: 2px;
+}
+
+.mainborder {
+    border-style: double;
+    border-width: 10px;
+    border-color:#33ff00;
+    overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100% - 12px);
+  padding: revert;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right:10px
+}
+
+.inbetweenborder {
+    position: relative;
+    border-style: double;
+    border-left-style:hidden;
+    border-right-style: hidden;
+    border-width: 10px;
+    border-color:#33ff00;
+  height: 100px;
+  width: 50px;
+  padding: revert;
+  top: 50px;
+}
+
+.inbetweenborder-two {
+    position: relative;
+    border-style: double;
+    border-left-style:hidden;
+    border-right-style: hidden;
+    border-width: 10px;
+    border-color:#33ff00;
+  height: 50px;
+  width: 50px;
+  padding: revert;
+  top: 100px;
+}
+
+.bordercol {
+    padding: revert;
+}
+
+.screenbg {
+    
+    color: #33ff00;
+    background-color: #0c191c;
+}
+
+.screenbut {
+    color: #33ff00;
+    background-color: transparent;
+    border-color: #33ff00!important;
+    border-left-style:hidden;
+    font-family: 'modern_sansregular';
+}
+
+.screenbutborder {
+    color: #33ff00;
+    background-color: transparent;
+    border: 1px solid #3f0;
+}
+
+.btn-check:focus + .btn-primary, .btn-primary:focus{
+    background-color: black;
+    color:#33ff00;
+    border-color:#33ff00;
+    box-shadow:none;
+}
+
+.screenbutborder:hover {
+    background-color: #33ff00;
+    color:#0c191c;
+    border-color:#33ff00;
+}
+
+
+
+.screenbutsm {
+    color: #33ff00;
+    background-color: transparent;
+    border-color: #33ff00;
+    border-left-style:hidden;
+    font-size: .8rem;
+    float:right;
+    font-family: 'modern_sansregular';
+}
+
+.screenbutsm:hover {
+    background-color: #33ff00;
+    color:#0c191c;
+    border-color:#33ff00;
+    font-size: .8rem;
+    float:right;
+    font-family: 'modern_sansregular';
+}
+
+.screenbut:hover{
+    background-color: #33ff00;
+    color:#0c191c;
+    border-color:#33ff00;
+    font-family: 'modern_sansregular';
+}
+
+.screeninput {
+    color:#33ff00;
+    border-top-style: solid;
+  border-right-style: hidden;
+  border-left-style: solid;
+  border-bottom-style: solid;
+  border-color:#33ff00;
+  background-color: rgb(0, 0, 0);
+  font-family: 'modern_sansregular';
+}
+
+.screeninputnobut {
+    color:#33ff00;
+    border-top-style: solid;
+  border-right-style: solid;
+  border-left-style: solid;
+  border-bottom-style: solid;
+  border-color:#33ff00;
+  background-color: rgb(0, 0, 0);
+  font-family: 'modern_sansregular';
+}
+
+.screeninputnobut:focus {
+    color:#33ff00;
+    border: none;
+    background-color: rgb(0, 0, 0);
+    box-shadow:0 0 0 .25rem #33ff00;
+    font-family: 'modern_sansregular';
+}
+
+.screeninput:focus {
+    color:#33ff00;
+    border: none;
+    background-color: rgb(0, 0, 0);
+    box-shadow:0 0 0 .25rem #33ff00
+}
+
+.list-group-item {
+    background-color: #0c191c;
+    border: 1px solid #3f0;
+    color:#3f0
+
+}
+.list-group-item:hover {
+    background-color: #3f0;
+    border: 1px solid #3f0;
+    color:#0c191c
+    
+}
+
+.list-group-item:focus {
+    background-color: #3f0;
+    color:#0c191c
+}
+
+.form-control:disabled {
+    background-color: rgb(0, 0, 0);
+    border-top-style: solid;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style:solid;
+  border-color:#33ff00;
+}
+
+.card-header {
+    border-top-style:solid;
+    border-bottom-style: solid;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-color:#33ff00;
+}
+
+.card {
+    border-top-style:hidden;
+    border-bottom-style: solid;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-color:#33ff00;
+}
+
+.initrecord{
+    background-color: rgb(0, 0, 0);
+    border-top-style:hidden;
+    border-bottom-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-color:#33ff00;
+}
+
+.targetstyle {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border-style:ridge;
+    border-color:#33ff00;
+    border-width:1px;
+    padding: 3px;
+    font-family: 'modern_sansregular';
+}
+
+.initrecordinputtext {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border: 1px solid;
+    border-color:#33ff00;
+   
+}
+
+.spellinputtext {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border: 1px solid;
+    border-color:#33ff00;
+    font-size:.8rem!important;
+    font-family: 'modern_sansregular';
+   
+}
+
+.initbotheader {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border: 1px solid;
+    border-color:#33ff00;
+}
+
+.form-select {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border: 1px solid;
+    border-color:#33ff00;
+}
+
+.form-select:disabled {
+    background-color: rgb(0, 0, 0);
+    color:#33ff00;
+    border: 1px solid;
+    border-color:#33ff00;
 }
 

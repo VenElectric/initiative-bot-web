@@ -1,8 +1,8 @@
 import React,{createContext,useState,useEffect,useContext} from 'react'
 import { v4 as uuid_v4 } from "uuid";
 import useLocalStorage from "../Hooks/useLocaleStorage";
-import { sort_init } from '../services/server_request';
-import {get_init,round_start} from '../services/redis-request'
+import { sort_init } from '../services/init_funcs';
+import {get_init,round_start} from '../services/server_requests'
 import { DiceRoll } from 'rpg-dice-roller';
 import { InitiativeLine } from '../Interfaces/Interfaces';
 import {socket} from './SocketContext'
@@ -19,7 +19,7 @@ export const InitContext = createContext(character_list);
 // export const InitContext = createContext();
 
 const InitContextProvider = (props:any) => {
-    const session_id = "723744588346556419"
+    const session_id = localStorage.getItem('session_id')
     // @ts-ignore
     const [loading,setLoad] = useState(false)
     const [error,setError] = useState({})
@@ -28,7 +28,7 @@ const InitContextProvider = (props:any) => {
     const [init_list,setInit] = useLocalStorage("character", [] as InitiativeLine[]);
     const [sorted,setSort] = useLocalStorage("character_sort",false)
     const [ondeck,setOndeck] = useLocalStorage("character_ondeck",0)
-    const [char_list,setList] = useState(init_list.map((item) => {return {id:item.id,name:item.name,color:item.color,status_effects:item.status_effects}}))
+    const [char_list,setList] = useState(init_list.map((item) => {return {id:item.id,name:item.name,status_effects:item.status_effects}}))
 
     const load_init = async () => {
         let init_data = await get_init(session_id)
@@ -36,10 +36,15 @@ const InitContextProvider = (props:any) => {
         try{
             if (init_data === 0 || init_data === []){
                 setInit([])
+                setSort(false)
+                setOndeck(0)
             }
             else{
-                let sorted_list = await sort_init(init_data,false)
+                let sorted_list = await sort_init(init_data.init_list,false)
+               
                 setInit(sorted_list)
+                setOndeck(init_data.initial.on_deck)
+                setSort(init_data.initial.sort)
             }
         }
         catch(error){
@@ -47,10 +52,10 @@ const InitContextProvider = (props:any) => {
         }
     }
     
-    useEffect(()=> {
-        console.log('use effect?')
-        load_init()
-    },[])
+    // useEffect(()=> {
+    //     console.log('use effect?')
+    //     load_init()
+    // },[])
 
    
     const getRandomColor = () => {
@@ -80,20 +85,20 @@ const InitContextProvider = (props:any) => {
 
     }
 
-    const update_status_color = (e:ChangeEvent<HTMLInputElement>,id:string) => {
-        let new_state = [...init_list]
-        let color = e.target.value
-        for (let x in new_state){
-            let new_index = new_state[x].status_effects.map((item:any) => item.id).indexOf(id)
-            if (new_index >= 0){
-                new_state[x].status_effects[new_index].color = color
-            }
-        }
-        setInit(new_state)
-    }
+    // const update_status_color = (e:ChangeEvent<HTMLInputElement>,id:string) => {
+    //     let new_state = [...init_list]
+    //     let color = e.target.value
+    //     for (let x in new_state){
+    //         let new_index = new_state[x].status_effects.map((item:any) => item.id).indexOf(id)
+    //         if (new_index >= 0){
+    //             new_state[x].status_effects[new_index].color = color
+    //         }
+    //     }
+    //     setInit(new_state)
+    // }
 
     const add_init = (e:any) => {
-    e.preventDefault()
+    
     let charid = String(uuid_v4())
     let init:number = 0
         console.log(e.target[3].value)
@@ -113,10 +118,9 @@ const InitContextProvider = (props:any) => {
         line_order: 0,
         npc: e.target[1].value,
         status_effects: [],
-        color:getRandomColor()
         }
     setInit([...init_list,new_data])
-    setList([...char_list,{id:new_data.id,name:new_data.name,color:new_data.color,status_effects:new_data.status_effects}])
+    setList([...char_list,{id:new_data.id,name:new_data.name,status_effects:new_data.status_effects}])
     let init_form = document.getElementById('init-form')
     if (init_form) (init_form as HTMLFormElement).reset()
 
@@ -159,16 +163,19 @@ const InitContextProvider = (props:any) => {
         // update_init(targetid,new_target[new_index])
     }
 
-    const new_target = (id:string,char:any,target:any,spell_id:string,spell_color:string,spell_name:string) => {
+    const new_target = (id:string,char:any,spell_id:string,spell_name:string,spell_effect:string) => {
+        console.log('on add?')
         let target_index = id
         let targetid = char[target_index].id
         let new_target = [...init_list]
+        console.table(new_target)
         let new_index = new_target.map((item:any) => item.id).indexOf(targetid)
 		
-        new_target[new_index].status_effects.push({id:spell_id,color:spell_color,name:spell_name})
+        new_target[new_index].status_effects.push({id:spell_id,name:spell_name,effect:spell_effect})
 		setInit(new_target)
       
         socket.emit('server_update_init',{room:session_id,sort:sorted,on_deck:ondeck,initiative:new_target,id:targetid,index:new_index})
+        
       
         setTimeout(()=>{
         //@ts-ignore
@@ -338,7 +345,7 @@ const InitContextProvider = (props:any) => {
       }
 
         return (
-        <InitContext.Provider value={{send_init,char_list,setList,init_list,setInit,setSort,add_init,next_turn,previous_turn,sort_list,remove_init,remove_status_effect,new_target,sorted,set_current,reroll_init,loading,error,setOndeck,update_order,update_status_color}}>
+        <InitContext.Provider value={{load_init,send_init,char_list,setList,init_list,setInit,setSort,add_init,next_turn,previous_turn,sort_list,remove_init,remove_status_effect,new_target,sorted,set_current,reroll_init,loading,error,setOndeck,update_order}}>
             {props.children}
         </InitContext.Provider>
     )

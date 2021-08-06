@@ -1,6 +1,6 @@
 import { useEffect,useState,useContext,useRef } from "react";
 import { InitiativeLine } from "../Interfaces/Interfaces";
-import { MdDeleteForever } from "react-icons/md";
+import {TiDeleteOutline} from 'react-icons/ti'
 import {BsArrowUpDown} from "react-icons/bs";
 import {
 	Accordion,
@@ -18,36 +18,18 @@ import CustomToggleIcon from "./CustomToggleIcon";
 
 export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 
-	const {remove_init,set_current,reroll_init,init_list,setInit} = useContext(InitContext)
+	const {remove_init,set_current,reroll_init,init_list,setInit,char_list,setList} = useContext(InitContext)
 
-
-	// useEffect(() => {
-	// 	//@ts-ignore
-	// 	let rec_data = [...init_list]
-	// 	let index = rec_data.map((item:any) => item.id).indexOf(init_rec.id)
-	// 	// rec_data[index].status_effects
-	// 	setRecord(new_data)
-	// 	setInit(new_data)
-
-	// }, [init_list])
 	const [record,setRecord] = useState(init_rec)
-	let mounted = useRef(true)
-	
-	// useEffect(()=>{
+
+	useEffect(()=> {
+		let index = init_list.map((item:any)=> item.id).indexOf(record.id)
+		let new_state = [...init_list]
+
+		setRecord(new_state[index])
 		
-	// if (mounted.current){
-	// 	setTimeout(()=>{
-	// 		let new_state:InitiativeLine;
-	// 		let record_index = init_list.map((item:any)=> item.id).indexOf(record.id)
-	// 		new_state = {...init_list[record_index]}
-	// 		setRecord(new_state)
-	// 	},500)
-	// }
-	// return () => {
-	// 	mounted.current = false
-	// 	console.log(mounted.current)
-    // }
-	// },[init_list])
+	},[init_list])
+	
 
 	async function init_roll(){
 		await reroll_init(record.id)
@@ -63,27 +45,32 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 		new_state[key] = value
 		setRecord(new_state)
 		let new_init = [...init_list]
+		let new_char = [...char_list]
 		let init_index = init_list.map((item:any) => item.id).indexOf(record.id)
+		let char_index = new_char.map((item:any) => item.id).indexOf(record.id)
 		new_init[init_index] = {...record}
+		new_char[char_index] = {id:record.id,name:record.name,status_effects:record.status_effects}
 		setInit(new_init)
+		setList(new_char)
 	}
 
 	return (
 		<>
 		
-		<Card style={{width:'100%'}}>
+		<Card style={{width:'100%'}} className='spellcard'>
 					<Card.Header style={{alignItems:'center',width:'100%'}}>
 						
 							<Row>
-							<InputGroup className="mb-3" style={{height:'1.25rem',fontSize:'1.5rem',alignItems:'center',marginInlineEnd:'.50rem'}}>
+							<InputGroup className='mb-2' size='sm' style={{fontSize:'1.5rem',alignItems:'center',marginInlineEnd:'.50rem'}}>
 								
-							<InputGroup.Text id="inputGroup-sizing-sm"><BsArrowUpDown/></InputGroup.Text>
-							<Button variant="outline-secondary" id="button-addon1" size='sm' onClick={() => set_current(record.id)}>
+							<InputGroup.Text style={{fontSize:'1rem',height:'1.8rem'}} className='initrecordinputtext'><BsArrowUpDown/></InputGroup.Text>
+							<Button className='screenbut' id="button-addon1" onClick={() => set_current(record.id)}>
       							Current
     						</Button>
-							<MdDeleteForever style={{color:'red'}} onClick={() => remove_init(record.id)}/>
+							<TiDeleteOutline style={{color:'#33ff00'}} onClick={() => remove_init(record.id)}/>
 								<FormControl
-								size="sm"
+								className='screeninput'
+								
 								aria-label="Default"
 								aria-describedby="inputGroup-sizing-default"
 								value={record.name}
@@ -98,25 +85,27 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 					</Card.Header>
 					<Accordion.Collapse eventKey={record.id}>
 					<Card.Body>
-						<InputGroup className="mb-3">
-							<InputGroup.Text id="inputGroup-sizing-default">
+						<InputGroup className="mb-3" size='sm'>
+							<InputGroup.Text className='initrecordinputtext' id="inputGroup-sizing-default">
 								Initiative Total
 							</InputGroup.Text>
 							<FormControl
+							className='screeninput'
 								aria-label="Default"
 								aria-describedby="inputGroup-sizing-default"
 								value={record.init}
 								onChange={(e) => change_handler('init',e.target.value)}
 							/>
-							<Button onClick={() => init_roll()} variant="outline-secondary" id="button-addon2">
+							<Button onClick={() => init_roll()} className='screenbut' id="button-addon2">
 								Reroll
 							</Button>
 						</InputGroup>
-						<InputGroup className="mb-3">
-							<InputGroup.Text id="inputGroup-sizing-default">
+						<InputGroup className="mb-3" size='sm'>
+							<InputGroup.Text className='initrecordinputtext' id="inputGroup-sizing-default">
 								Initiative Modifier
 							</InputGroup.Text>
 							<FormControl
+							className='screeninputnobut'
 								aria-label="Default"
 								aria-describedby="inputGroup-sizing-default"
 								value={record.init_mod}

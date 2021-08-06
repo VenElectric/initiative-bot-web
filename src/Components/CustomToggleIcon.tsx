@@ -8,7 +8,7 @@ export default function CustomToggleIcon({ eventKey }:{eventKey:any}) {
       
     return (
         <>
-            <Button onClick={decoratedOnClick}><GiClick style={{float:'right',paddingLeft:'.25rem',marginLeft:'1rem'}}/></Button>
+            <Button className='screenbut' onClick={decoratedOnClick}><GiClick style={{paddingLeft:'.25rem',marginLeft:'1rem'}}/></Button>
         </>
     )
 }

@@ -4,7 +4,8 @@ import { v4 as uuid_v4 } from "uuid";
 import { ChangeEvent } from "react";
 import { socket } from "./SocketContext";
 import { SpellLine} from "../Interfaces/Interfaces";
-import { get_spells } from "../services/redis-request";
+import { get_spells } from "../services/server_requests";
+
 
 const projectkey = "initiativebot";
 const spells_list =
@@ -14,7 +15,7 @@ const spells_list =
 export const SpellContext = createContext(spells_list);
 
 const SpellContextProvider = (props: any) => {
-  const session_id = "723744588346556419";
+  const session_id = localStorage.getItem('session_id')
   const [spell_list, setSpells] = useLocalStorage("spell_list", [] as SpellLine[]);
 
   const load_spells = async () => {
@@ -24,19 +25,20 @@ const SpellContextProvider = (props: any) => {
             setSpells([])
         }
         else{
-            
             setSpells(init_data)
         }
+       
+         
     }
     catch(error){
       setSpells([])
     }
 }
 
-useEffect(()=> {
-    console.log('use effect?')
-    load_spells()
-},[])
+// useEffect(()=> {
+//     console.log('use effect?')
+//     load_spells()
+// },[])
   
   const getRandomColor = () => {
     var letters = "0123456789ABCDEF";
@@ -48,7 +50,7 @@ useEffect(()=> {
   };
 
   const spell_submit = (e: any) => {
-    e.preventDefault();
+   
     let spellid = String(uuid_v4());
 
     let new_spell = {
@@ -57,7 +59,7 @@ useEffect(()=> {
       effect: e.target[1].value,
       duration_num: e.target[2].value,
       duration_type: e.target[3].value,
-      color: getRandomColor(),
+      user_ids: []
     };
 
     setSpells([...spell_list, new_spell]);
@@ -67,18 +69,39 @@ useEffect(()=> {
     
   };
 
-  const change_color = (e: ChangeEvent<HTMLInputElement>, id: any) => {
-    e.preventDefault();
-    console.log(e.target.value);
-    let new_state = [...spell_list];
-    let spell_index = new_state.map((item: any) => item.id).indexOf(id);
-    new_state[spell_index].color = e.target.value;
-    setSpells(new_state);
-    socket.emit("server_update_spell", {
-      room: session_id,
-      spell: new_state[spell_index],
-    });
-  };
+  // const change_color = (e: ChangeEvent<HTMLInputElement>, id: any) => {
+  //   e.preventDefault();
+  //   console.log(e.target.value);
+  //   let new_state = [...spell_list];
+  //   let spell_index = new_state.map((item: any) => item.id).indexOf(id);
+  //   new_state[spell_index].color = e.target.value;
+  //   setSpells(new_state);
+  //   socket.emit("server_update_spell", {
+  //     room: session_id,
+  //     spell: new_state[spell_index],
+  //   });
+  // };
+
+  const update_spell_effect = (id:string,char:any,spell_id:string) =>{
+    let target_index = id
+    let targetid = char[target_index].id
+    console.log(targetid)
+    let new_target = [...spell_list]
+    let new_index = new_target.map((item:any) => item.id).indexOf(spell_id)
+    new_target[new_index].user_ids.push(targetid)
+    setSpells(new_target)
+    socket.emit('server_update_spell',{room:session_id,spell:new_target[new_index]})
+  }
+
+  const remove_spell_effect = (id:string,target:any,spell_id:string)=> {
+    let target_index = id
+    let targetid = target[target_index].id
+    let new_target = [...spell_list]
+    let new_index = new_target.map((item:any) => item.id).indexOf(spell_id)
+    let effect_index = new_target[new_index].user_ids.map((item:any) => item.id).indexOf(targetid)
+    new_target[new_index].user_ids.splice(effect_index,1)
+    socket.emit('server_update_spell',{room:session_id,spell:new_target[new_index]})
+  }
 
   const remove_spell = (id: string) => {
     let new_state = [...spell_list];
@@ -104,8 +127,10 @@ useEffect(()=> {
         setSpells,
         spell_submit,
         remove_spell,
-        change_color,
-        send_spells
+        send_spells,
+        load_spells,
+        update_spell_effect,
+        remove_spell_effect
       }}
     >
       {props.children}

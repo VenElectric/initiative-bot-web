@@ -6,18 +6,24 @@ import {
 	InputGroup,
 	FormControl,
 	Button,
+	Modal
 } from "react-bootstrap";
 import {InitiativeLine} from '../Interfaces/Interfaces'
 
-export default function SpellForm({handle_submit,char_data}:{handle_submit:VoidFunction,char_data:InitiativeLine[]}) {
+export default function SpellForm({handle_submit}:{handle_submit:any}) {
 	return (
-		<div>
+		<>
+			<Modal.Header closeButton className='spellcardheader'>
+			<Modal.Title>Add Spell</Modal.Title>
+			</Modal.Header>
+			<Modal.Body className='spellcard'>
 			<Form onSubmit={handle_submit} id='spell-form'>
 				<Form.Label htmlFor="inlineFormInput" visuallyHidden>
 					Spell Name
 				</Form.Label>
 				<Form.Control
-					className="mb-2"
+
+					className="mb-2 screeninput"
 					id="inlineFormInput"
 					placeholder="Spell name"
 				/>
@@ -54,9 +60,10 @@ export default function SpellForm({handle_submit,char_data}:{handle_submit:VoidF
 							</Tooltip>
 						}
 					>
-                <InputGroup.Text id="basic-addon1">Effect</InputGroup.Text>
+                <InputGroup.Text id="basic-addon1" className='initrecordinputtext'>Effect</InputGroup.Text>
 				</OverlayTrigger>
 								<FormControl
+								className='screeninput'
 									placeholder="Effect"
 									aria-label="Effect"
 									aria-describedby="basic-addon1"
@@ -66,8 +73,9 @@ export default function SpellForm({handle_submit,char_data}:{handle_submit:VoidF
 					Duration
 				</Form.Label>
 				<InputGroup className="mb-2">
-                <InputGroup.Text id="basic-addon1">Duration</InputGroup.Text>
+                <InputGroup.Text id="basic-addon1" className='initrecordinputtext'>Duration</InputGroup.Text>
 								<FormControl
+								className='screeninput'
 									placeholder="Duration"
 									aria-label="Duration"
 									aria-describedby="basic-addon1"
@@ -81,10 +89,11 @@ export default function SpellForm({handle_submit,char_data}:{handle_submit:VoidF
 								</Form.Select>
 				</InputGroup>
 
-				<Button type="submit" className="mb-2">
+				<Button type="submit" className="mb-2 screenbutborder">
 					Submit
 				</Button>
 			</Form>
-		</div>
+			</Modal.Body>
+		</>
 	);
 }
