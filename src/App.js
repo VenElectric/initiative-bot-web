@@ -23,6 +23,7 @@ function App() {
 useEffect(() => {
   
   socket.emit('create', String(sessionid));
+  
   return () => {
     socket.disconnect()
     localStorage.clear();

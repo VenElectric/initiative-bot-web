@@ -2,6 +2,9 @@ import axios from 'axios'
 import { server_endpoints } from './static'
 import {socket} from '../Context/SocketContext'
 
+let dev = "http://localhost:8000"
+let prod = "https://dungeon-bot-server.herokuapp.com"
+
 export function send_error(session_id,error_name,error_msg,tracer){
     socket.emit('error_reporting',{room:session_id,error_name:error_name,error_msg:error_msg,tracer:tracer})
    }
@@ -11,13 +14,11 @@ export function log_info(session_id,data_msg,tracer){
    }
 
 export function get_init(session_id){
-    let url = `http://localhost:8000${server_endpoints.get_init}?session_id=${session_id}`
+    let url = `${prod}${server_endpoints.get_init}?session_id=${session_id}`
     let axios_request = new Promise((resolve,reject) => {
         axios.get(url).then(response => {
         if (response.data != null){
             log_info(session_id,response.data,'get_init')
-           
-            console.trace(response.data)
             resolve(response.data)
         }
         if (response.data === null){
@@ -31,8 +32,8 @@ export function get_init(session_id){
 }
 
 export function get_spells(session_id){
-    console.log(session_id)
-    let url = `http://localhost:8000${server_endpoints.get_spells}?session_id=${session_id}`
+    
+    let url = `${prod}${server_endpoints.get_spells}?session_id=${session_id}`
     let axios_request = new Promise((resolve,reject) => {
         axios.get(url).then(response => {
         if (response.data != null){
@@ -50,8 +51,8 @@ export function get_spells(session_id){
 }
 
 export async function round_start(session_id){
-    console.log(session_id)
-    let url = `http://localhost:8000${server_endpoints.roundstart}?session_id=${session_id}`
+   
+    let url = `${prod}${server_endpoints.roundstart}?session_id=${session_id}`
     let axios_request = new Promise((resolve,reject) => {
         axios.get(url).then(response => {
         if (response.data != null){

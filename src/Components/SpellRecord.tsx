@@ -34,9 +34,7 @@ export default function SpellRecord({
 
   
   const projectkey = "initiativebot";
-  function select_handler(e: any) {
-    console.log(e.target.value);
-  }
+  
 
  
   
@@ -56,7 +54,7 @@ export default function SpellRecord({
 
   
   return (
-    <Container fluid>
+   <>
       <h3>Spell Info</h3>
       <Card className="spellcard">
         <Form>
@@ -105,7 +103,7 @@ export default function SpellRecord({
                   aria-label="Duration"
                   aria-describedby="basic-addon1"
                   defaultValue={
-                    record.duration_num ? record.duration_num : 0
+                    record.duration_num
                   }
                   onChange={(e) => change_handler("duration_num", e)}
                 />
@@ -113,16 +111,17 @@ export default function SpellRecord({
                 <Form.Select
                   disabled={show_data}
                   id="inlineFormCustomSelect"
-                  defaultValue={
-                    record.duration_type ? record.duration_type : 0
+                  value={
+                    String(record.duration_type)
                   }
                   onChange={(e) => change_handler("duration_type", e)}
                 >
                   <option value="0">Choose...</option>
-                  <option value="1">Round(s)</option>
-                  <option value="2">Minute(s)</option>
-                  <option value="3">Day(s)</option>
-                  <option value="4">Month(s)</option>
+									<option value="1">Round(s)</option>
+									<option value="2">Minute(s)</option>
+									<option value="3">Hour(s)</option>
+									<option value="4">Day(s)</option>
+									<option value="5">Month(s)</option>
                 </Form.Select>
               </InputGroup>
             </Row>
@@ -155,6 +154,6 @@ export default function SpellRecord({
           </Card.Body>
         </Form>
       </Card>
-    </Container>
+    </>
   );
 }

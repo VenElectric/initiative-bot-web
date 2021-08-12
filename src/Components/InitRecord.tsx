@@ -75,7 +75,7 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 								aria-describedby="inputGroup-sizing-default"
 								value={record.name}
 								onChange={(e) => change_handler('name',e.target.value)}
-								style={{width:'20%',marginLeft:'1rem'}}
+								style={{width:'20%'}}
 							/>
 							
 						<CustomToggleIcon eventKey={record.id}></CustomToggleIcon>

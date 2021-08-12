@@ -197,7 +197,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
 							<InputGroup.Text className='spellinputtext' id="inputGroup-sizing-default">
                             Target Group
 							</InputGroup.Text>
-                            <Button size="sm" className='screenbutsm' onClick={() => remove_all_targets()}>Remove All</Button>
+                            <Button disabled={show_data} size="sm" className='screenbutsm' onClick={() => remove_all_targets()}>Remove All</Button>
             </InputGroup>
             </Card.Header>
 
@@ -216,7 +216,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
 							<InputGroup.Text className='spellinputtext' id="inputGroup-sizing-default">
                             List of Targets
                             </InputGroup.Text>
-                            <Button size="sm" className='screenbutsm' onClick={() => remove_all_char()}>Add All</Button>
+                            <Button disabled={show_data} size="sm" className='screenbutsm' onClick={() => remove_all_char()}>Add All</Button>
                             </InputGroup>
             </Card.Header>
             

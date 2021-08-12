@@ -11,7 +11,6 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { SpellContext } from "../Context/SpellContext";
 import { SocketContext } from "../Context/SocketContext";
 import {TiDeleteOutline,TiPlus} from 'react-icons/ti'
-import useLocalStorage from "../Hooks/useLocaleStorage";
 
 export default function SessionPage() {
 
@@ -92,7 +91,7 @@ export default function SessionPage() {
 			setTimeout(()=>{
 				//@ts-ignore
 			let new_state = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
-        	let index = new_state.map((item:any) => item.id).indexOf(data.spell.id)
+        	let index = new_state.map((item:any) => item.id).indexOf(data.id)
 			new_state.splice(index,1)
 			setSpells(new_state)
 		},1000)
@@ -135,7 +134,7 @@ export default function SessionPage() {
 	const [record, setRecord] = useState({} as SpellLine);
 
 	function spell_click(id:string){
-		
+		console.trace('this is happening at spell click')
 		let index = spell_list.map((item:SpellLine) => item.id).indexOf(id)
 		setRecord(spell_list[index])
 		setShowdata(false)
@@ -150,7 +149,7 @@ export default function SessionPage() {
 	function handle_init_submit(e: any){
 		e.preventDefault();
 		add_init(e)
-		spellClose()
+		initClose()
 	}
 
 	const [show_data,setShowdata] = useState(true)
@@ -167,9 +166,11 @@ export default function SessionPage() {
 
 	return (
 		<>
-
+<Row className='justify-content-md-center listfeed'><h1 style={{alignContent:'center',textAlign:'center'}}><Alert className='initbotheader'>Initiative Bot</Alert></h1></Row>
 		<Container fluid>
-		<Row className='justify-content-md-center listfeed'><Col ><h1 style={{alignContent:'center',textAlign:'center'}}><Alert className='initbotheader'>Initiative Bot</Alert></h1></Col></Row>
+		
+		<br></br>
+		<br></br>
 			<Row className="justify-content-md-center">
 			<Col md={3} className='bordercol'>
 			<div className='mainborder'>
@@ -178,7 +179,7 @@ export default function SessionPage() {
 				<ReactSortable group="initiative" list={init_list} setList={setInit} onUpdate={update_order}>
 					{init_list != null
 						? init_list.map((item:InitiativeLine) => {
-								return <Alert key={item.id} style={{borderStyle:`${item.cmark ? 'double': 'none'}`,borderColor:`${item.cmark ? '#33ff00': 'black'}`,borderWidth:'10px'}}><Accordion className='initrecord'><InitRecord init_rec={item}/></Accordion></Alert>;
+								return <Alert key={item.id} style={{borderStyle:`${item.cmark ? 'solid': 'none'}`,borderColor:`${item.cmark ? '#33ff00': 'black'}`,borderWidth:'3px'}}><Accordion className='initrecord'><InitRecord init_rec={item}/></Accordion></Alert>;
 						  })
 						: []}
 				</ReactSortable>
@@ -194,7 +195,7 @@ export default function SessionPage() {
 				<Button className='screenbutborder' onClick={() => sort_list()}>Sort Initiative</Button>
 				</div>
 				<br></br>
-				<br></br>
+				
 				<Modal show={initMod} onHide={initClose}><InitForm handle_submit={handle_init_submit}/></Modal>
 			</Col>
 			<Col xs='auto' className='bordercol'><div className='inbetweenborder'></div></Col>
@@ -204,7 +205,7 @@ export default function SessionPage() {
 			<ListGroup variant="flush">
 				{spell_list != null
 						? spell_list.map((item:SpellLine) => {
-								return <ListGroup.Item key={item.id} action onClick={(e) => spell_click(item.id)}>{item.name}<TiDeleteOutline style={{float:'right'}} onClick={() => remove_spell(item.id)}/></ListGroup.Item>;
+								return <ListGroup.Item key={item.id}><Button className='listbuttonborder' onClick={(e) => spell_click(item.id)}>{item.name}</Button><TiDeleteOutline onClick={() => remove_spell(item.id)} style={{float:'right'}}/></ListGroup.Item>;
 						  })
 						: []}
 			</ListGroup>
@@ -212,8 +213,11 @@ export default function SessionPage() {
 				</>
 				:[]}
 			</div>
+			<br></br>
 			</Col>
+			
 			<Col xs='auto' className='bordercol'><div className='inbetweenborder-two'></div></Col>
+			
 			<Col md={3} className='bordercol'>
 			<div className='mainborder'>
 				{/* @ts-ignore*/}
@@ -228,16 +232,3 @@ export default function SessionPage() {
 }
 
 
-{/* <div className='mainborder'>
-					{spell_list != null
-						? spell_list.map((item:SpellLine) => {
-								return <Row key={item.id} style={{marginBottom:'10px'}}><SpellRecord change_color={change_color} spell_rec={item} /></Row>;
-						  })
-						: []}
-				{spell_list != null ? <><Button onClick={() => send_spells()}>Send Spells to Discord</Button>
-				<br></br>
-				<br></br>
-				</>
-				:[]}
-				</div>
-				<Row><SpellForm char_data={init_list} handle_submit={spell_submit}/></Row> */}

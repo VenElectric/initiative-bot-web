@@ -84,8 +84,9 @@ export default function SpellForm({handle_submit}:{handle_submit:any}) {
 									<option value="0">Choose...</option>
 									<option value="1">Round(s)</option>
 									<option value="2">Minute(s)</option>
-									<option value="3">Day(s)</option>
-									<option value="4">Month(s)</option>
+									<option value="3">Hour(s)</option>
+									<option value="4">Day(s)</option>
+									<option value="5">Month(s)</option>
 								</Form.Select>
 				</InputGroup>
 

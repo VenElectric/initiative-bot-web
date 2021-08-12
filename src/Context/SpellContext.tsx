@@ -57,8 +57,8 @@ const SpellContextProvider = (props: any) => {
       id: spellid,
       name: e.target[0].value,
       effect: e.target[1].value,
-      duration_num: e.target[2].value,
-      duration_type: e.target[3].value,
+      duration_num: Number(e.target[2].value),
+      duration_type: Number(e.target[3].value),
       user_ids: []
     };
 
@@ -93,6 +93,8 @@ const SpellContextProvider = (props: any) => {
     socket.emit('server_update_spell',{room:session_id,spell:new_target[new_index]})
   }
 
+  
+
   const remove_spell_effect = (id:string,target:any,spell_id:string)=> {
     let target_index = id
     let targetid = target[target_index].id
@@ -104,6 +106,7 @@ const SpellContextProvider = (props: any) => {
   }
 
   const remove_spell = (id: string) => {
+    console.trace('this is happening at remove spell')
     let new_state = [...spell_list];
     let index = new_state.map((item: any) => item.id).indexOf(id);
     new_state.splice(index, 1);
@@ -111,7 +114,7 @@ const SpellContextProvider = (props: any) => {
     console.log(new_state[index]);
     socket.emit("server_del_spell", {
       room: session_id,
-      spell: new_state[index],
+      id:id,
     });
   };
 
