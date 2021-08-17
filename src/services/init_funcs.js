@@ -31,13 +31,14 @@ let dupes = [];
     loop1: for (let i = 0; i < init_list.length; i++) {
         // now loop through every record in init_list matching it with the current iteration of init_list[i]
         // I.E. first we look at init_list[i=0] and compare that to record x of init_list
-        for (let x in init_list){
+        for (let x = 0; x < init_list.length; x++){
             // we want to only check values that are not init_list[i], so we check that against the unique ID of each record.
             // we don't use name, since there's a possibility that we could have similarly named characters. 
             if (init_list[x].id !== init_list[i].id){
                 
                 // only add to dupes array if both the initiative and init_mod are the same. If the initiative is similar, but the init_mod is not, the sort later will handle that.
-                if (init_list[x].initiative === init_list[i].initiative && init_list[x].init_mod === init_list[i].init_mod){
+                if ((Number(init_list[x].init) == Number(init_list[i].init)) && (Number(init_list[x].init_mod) == Number(init_list[i].init_mod))){
+                   
                     log_info(init_list[i].id,'Duplicate Added','sort_init - dupe detect')
                     dupes.push(init_list[i])
                     continue loop1
@@ -107,7 +108,7 @@ let dupes = [];
         if (a.init_mod > b.init_mod) return -1;
         if (a.init_mod < b.init_mod) return 1;
     });
-    init_list[0].cmark = true
+    
 
     // loop through init_list and add ordering for easier sorting later. 
     for (let v = 0; v < init_list.length; v++){

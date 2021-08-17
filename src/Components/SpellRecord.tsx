@@ -4,6 +4,7 @@ import { SpellLine, InitiativeLine } from "../Interfaces/Interfaces";
 import SpellTarget from "./SpellTarget";
 import { InitContext } from "../Context/InitContext";
 import { SpellContext } from "../Context/SpellContext";
+import { SocketContext } from "../Context/SocketContext";
 import useLocalStorage from "../Hooks/useLocaleStorage";
 import {
   Container,
@@ -31,7 +32,7 @@ export default function SpellRecord({
 }) {
   const { init_list } = useContext(InitContext);
   const { remove_spell, spell_list, setSpells } = useContext(SpellContext);
-
+  const socket = useContext(SocketContext);
   
   const projectkey = "initiativebot";
   
@@ -44,10 +45,13 @@ export default function SpellRecord({
     //@ts-ignore
     new_state[key] = e.target.value;
     setRecord(new_state);
-    let new_init = [...spell_list];
-    let init_index = spell_list.map((item: any) => item.id).indexOf(record.id);
-    new_init[init_index] = { ...record };
-    setSpells(new_init);
+    let new_spells = [...spell_list];
+    let spell_index = spell_list.map((item: any) => item.id).indexOf(record.id);
+    new_spells[spell_index] = { ...record };
+    setSpells(new_spells);
+    let session_id = localStorage.getItem('session_id')
+    
+    socket.emit('server_update_spell',{room:session_id,spell:new_spells[spell_index]})
   }
 
   let mounted = useRef(true)
@@ -60,27 +64,6 @@ export default function SpellRecord({
         <Form>
           <Card.Header>
             <InputGroup className="mb-2" size="sm">
-              {/* <Form.Control
-                className="screeninput"
-                disabled={show_data}
-                type="color"
-                id="exampleColorInput"
-                defaultValue={record.color ? record.color : ""}
-                title="Choose your color"
-                onChange={(e) => {
-                  change_color(e, record.id);
-                  update_status_color(e, record.id);
-                }}
-              />
-              <OverlayTrigger
-                key="1"
-                placement="top"
-                overlay={
-                  <Tooltip id={`1`}>Choose a status effect color</Tooltip>
-                }
-              >
-                <InputGroup.Text className="spellinputtext">?</InputGroup.Text>
-              </OverlayTrigger> */}
               <FormControl
                 className="screeninputnobut"
                 disabled={show_data}

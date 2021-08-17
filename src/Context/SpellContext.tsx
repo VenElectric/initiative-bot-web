@@ -17,7 +17,7 @@ export const SpellContext = createContext(spells_list);
 const SpellContextProvider = (props: any) => {
   const session_id = localStorage.getItem('session_id')
   const [spell_list, setSpells] = useLocalStorage("spell_list", [] as SpellLine[]);
-
+  const channel_id = localStorage.getItem('channel_id')
   const load_spells = async () => {
     let init_data = await get_spells(session_id)
     try{
@@ -26,8 +26,11 @@ const SpellContextProvider = (props: any) => {
         }
         else{
             setSpells(init_data)
+            for (let x=0;x<init_data.length;x++){
+              localStorage.setItem(`${projectkey}target_list${init_data[x].id}`,JSON.stringify([]))
+              localStorage.setItem(`${projectkey}main_list${init_data[x].id}`,JSON.stringify([]))
+            }
         }
-       
          
     }
     catch(error){
@@ -119,8 +122,8 @@ const SpellContextProvider = (props: any) => {
   };
 
   const send_spells = () => {
-
-    socket.emit("server_show_spell", {room:session_id
+    let channel_id = localStorage.getItem('channel_id')
+    socket.emit("server_show_spell", {room:session_id,channel_id:channel_id
     });
   }
   return (

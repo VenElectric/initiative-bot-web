@@ -14,6 +14,7 @@ import {
 } from "react-bootstrap";
 import EffectsContainer from "./EffectsContainer";
 import { InitContext } from "../Context/InitContext";
+import {socket} from "../Context/SocketContext"
 import CustomToggleIcon from "./CustomToggleIcon";
 
 export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
@@ -52,6 +53,8 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 		new_char[char_index] = {id:record.id,name:record.name,status_effects:record.status_effects}
 		setInit(new_init)
 		setList(new_char)
+		let session_id = localStorage.getItem('session_id')
+		socket.emit('server_update_init',{room:session_id,initiative:new_init[init_index],id:record.id})
 	}
 
 	return (

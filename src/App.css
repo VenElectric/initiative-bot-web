@@ -40,7 +40,7 @@ h2,h3 {
     outline: 1px solid #33ff00;
     overflow-x: hidden;
   overflow-y: auto;
-  max-height: calc(100% - 12px);
+  max-height: 60%;
   padding: revert;
   border-width: 5px;
   padding-bottom: 15px;

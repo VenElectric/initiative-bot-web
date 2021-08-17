@@ -20,6 +20,7 @@ export const InitContext = createContext(character_list);
 
 const InitContextProvider = (props:any) => {
     const session_id = localStorage.getItem('session_id')
+    const channel_id = localStorage.getItem('channel_id')
     // @ts-ignore
     const [loading,setLoad] = useState(false)
     const [error,setError] = useState({})
@@ -32,7 +33,6 @@ const InitContextProvider = (props:any) => {
 
     const load_init = async () => {
         let init_data = await get_init(session_id)
-       
         try{
             if (init_data === 0 || init_data === []){
                 setInit([])
@@ -45,6 +45,7 @@ const InitContextProvider = (props:any) => {
                 setInit(sorted_list)
                 setOndeck(init_data.initial.on_deck)
                 setSort(init_data.initial.sort)
+                localStorage.setItem('channel_id',init_data.initial.channel_id)
             }
         }
         catch(error){
@@ -52,11 +53,6 @@ const InitContextProvider = (props:any) => {
         }
     }
     
-    // useEffect(()=> {
-    //     console.log('use effect?')
-    //     load_init()
-    // },[])
-
    
     const getRandomColor = () => {
         var letters = '0123456789ABCDEF';
@@ -112,7 +108,7 @@ const InitContextProvider = (props:any) => {
     }
     let new_data = {id: charid,
         name: e.target[0].value,
-        init: init,
+        init: Number(init),
         init_mod: Number(e.target[4].value),
         cmark : false,
         line_order: 0,
@@ -133,6 +129,14 @@ const InitContextProvider = (props:any) => {
     // let response = add_new_init(session_id,new_data)
     console.trace(new_data)
     console.trace(init_list)
+    //@ts-ignore
+    let spells = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
+    for (let x = 0;x<spells.length;x++){
+         //@ts-ignore
+        let main_init = JSON.parse(localStorage.getItem(`${projectkey}main_list${spells[x].id}`))
+        main_init.push({id:new_data.id,name:new_data.name,status_effects:new_data.status_effects})
+        localStorage.setItem(`${projectkey}main_list${spells[x].id}`,JSON.stringify(main_init))
+    }
     socket.emit('server_add_init',{room:session_id,sort:false,initiative:new_data})
 
     }
@@ -145,9 +149,9 @@ const InitContextProvider = (props:any) => {
         let effect_index = new_target[new_index].status_effects.map((item:any) => item.id).indexOf(spell_id)
 		new_target[new_index].status_effects.splice(effect_index,1)
 		setInit(new_target)
-        let emit_data = [...new_target]
-        socket.emit('server_update_init',{room:session_id,sort:sorted,on_deck:ondeck,initiative:emit_data,id:targetid,index:new_index},(answer:any) => {
-        console.log(answer)
+        
+        socket.emit('server_update_init',{room:session_id,initiative:new_target[new_index],id:targetid,index:new_index})
+       
         setTimeout(()=>{
             //@ts-ignore
          let target_state = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`))
@@ -159,7 +163,6 @@ const InitContextProvider = (props:any) => {
                    })
          
         },1000) 
-      })
         // update_init(targetid,new_target[new_index])
     }
 
@@ -174,8 +177,7 @@ const InitContextProvider = (props:any) => {
         new_target[new_index].status_effects.push({id:spell_id,name:spell_name,effect:spell_effect})
 		setInit(new_target)
       
-        socket.emit('server_update_init',{room:session_id,sort:sorted,on_deck:ondeck,initiative:new_target,id:targetid,index:new_index})
-        
+        socket.emit('server_update_init',{room:session_id,initiative:new_target[new_index],id:targetid,index:new_index})
       
         setTimeout(()=>{
         //@ts-ignore
@@ -243,7 +245,7 @@ const InitContextProvider = (props:any) => {
         setInit(new_state)
         let emit_data = [...new_state]
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:emit_deck,initiative:emit_data})
-        socket.emit('server_next',{room:session_id,next:new_state[current].name})
+        socket.emit('server_next',{channel_id:channel_id,next:new_state[current].name})
     }
     const previous_turn = () => {
         let new_state = [...init_list]
@@ -288,20 +290,28 @@ const InitContextProvider = (props:any) => {
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:emit_deck,initiative:emit_data},(answer:any) => {
             console.log(answer)
           })
-          socket.emit('server_prev',{room:session_id,prev:new_state[prev].name})
+          socket.emit('server_prev',{channel_id:channel_id,prev:new_state[prev].name})
         console.log('prev turn')
     }
 
     async function sort_list() {
         let sorted_init = await round_start(session_id)
         console.log(sorted_init)
-        setInit(sorted_init)
+        setInit(sorted_init.init_list)
         setSort(true)
-        setOndeck(2)
-        let emit_data = [...sorted_init]
-    socket.emit('server_init',{room:session_id,sort:true,on_deck:2,initiative:emit_data},(answer:any) => {
+        setOndeck(sorted_init.initial.on_deck)
+      
+    socket.emit('server_init',{room:session_id,sort:sorted_init.initial.sort,on_deck:sorted_init.initial.on_deck,initiative:sorted_init.init_list},(answer:any) => {
         console.log(answer)
       })
+    }
+
+    async function resort(){
+        let sorted_init = await sort_init(init_list,false)
+        setInit(sorted_init)
+        socket.emit('server_init',{room:session_id,sort:sorted,on_deck:ondeck,initiative:sorted_init},(answer:any) => {
+            console.log(answer)
+          })
     }
 
     const set_current = (id:string) =>{
@@ -340,12 +350,12 @@ const InitContextProvider = (props:any) => {
 
     const send_init = () => {
 
-        socket.emit("server_show_init", {room:session_id
+        socket.emit("server_show_init", {room:session_id,channel_id:channel_id
         });
       }
 
         return (
-        <InitContext.Provider value={{load_init,send_init,char_list,setList,init_list,setInit,setSort,add_init,next_turn,previous_turn,sort_list,remove_init,remove_status_effect,new_target,sorted,set_current,reroll_init,loading,error,setOndeck,update_order}}>
+        <InitContext.Provider value={{resort,load_init,send_init,char_list,setList,init_list,setInit,setSort,add_init,next_turn,previous_turn,sort_list,remove_init,remove_status_effect,new_target,sorted,set_current,reroll_init,loading,error,setOndeck,update_order}}>
             {props.children}
         </InitContext.Provider>
     )

@@ -15,7 +15,7 @@ import {TiDeleteOutline,TiPlus} from 'react-icons/ti'
 export default function SessionPage() {
 
 	const projectkey = 'initiativebot'
-	const {load_init,init_list,add_init,setInit,sorted,sort_list,next_turn,previous_turn,setSort,setOndeck,update_order,send_init,char_list} = useContext(InitContext)
+	const {resort,load_init,init_list,add_init,setInit,sorted,sort_list,next_turn,previous_turn,setSort,setOndeck,update_order,send_init,char_list} = useContext(InitContext)
 	const {load_spells,spell_list,spell_submit,change_color,setSpells,send_spells,remove_spell} = useContext(SpellContext)
 	const socket = useContext(SocketContext);
 	let mounted = useRef(true)
@@ -44,14 +44,11 @@ export default function SessionPage() {
 
 		socket.on('client_update_init',function(data:any){
 			console.log('client update init')
-			let new_state = data.initiative
-			let sort = data.sort
-			let on_deck = data.ondeck
+			let new_init = data.initiative as InitiativeLine
+			let init_index = init_list.map((item:any) => item.id).indexOf(new_init.id)
+			let new_state = [...init_list]
+			new_state[init_index] = new_init
 			setInit(new_state)
-			setSort(sort)
-			setOndeck(on_deck)
-
-			// this is not updating state for some reason
 		})
 
 		socket.on('client_remove_init',function(data:any){
@@ -118,6 +115,7 @@ export default function SessionPage() {
 		console.log('mounted')
 		load_spells()
 		load_init()
+		
 	}
 		return () => {
 		  console.log('unmounted')
@@ -192,7 +190,7 @@ export default function SessionPage() {
 				
 				:[]}
 				
-				<Button className='screenbutborder' onClick={() => sort_list()}>Sort Initiative</Button>
+				{sorted ? <Button className='screenbutborder' onClick={() => resort()}>Sort Initiative</Button>:<Button className='screenbutborder' onClick={() => sort_list()}>Sort Initiative</Button>}
 				</div>
 				<br></br>
 				

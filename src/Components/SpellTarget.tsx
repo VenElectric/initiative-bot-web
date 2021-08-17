@@ -47,8 +47,6 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
     })
 	
 	useEffect(()=> {
-
-        
         // @ts-ignore
         let target_init = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`)) || [];
 	    // @ts-ignore
@@ -76,19 +74,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
             setTarget(target_data)
             setChar(char_data)
         }
-        //     if (target_init.length !== 0 && main_init.length === 0){
-        //         console.log('initiatlize char if init length is not 0')
-        //         for (let y in char_list){
-        //             let target_index = target_init.map((item:any) => item.id).indexOf(char_list[y].id)
-        //             let char_index = main_init.map((item:any) => item.id).indexOf(char_list[y].id)
-        //             if (target_index >= 0 && char_index < 0){
-        //                 continue
-        //             }
-        //             if (char_index < 0 && target_index < 0){
-        //                 char_data.push(char_list[y])
-        //             }
-        // }
-        // setChar(char_data)
+        
     
         },100)
 
@@ -107,6 +93,18 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
         },500)
     
     },[spell_id])
+
+    useEffect(()=>{
+        setTimeout(()=>{
+        //@ts-ignore
+        let target_state = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`))
+        //@ts-ignore
+        let main_state = JSON.parse(localStorage.getItem(`${projectkey}main_list${spell_id}`))
+       
+        setChar(main_state)
+        setTarget(target_state)
+    },500) 
+    },[init_list])
     
     useEffect(()=>{
         socket.on('client_update_target',function(data:any){
@@ -119,53 +117,8 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
             setChar(main_state)
             setTarget(target_state)
          
-        },1000) })
+        },500) })
     },[])
-
-
-    
-
-    // useEffect(()=>{
-
-        
-    //         let new_main = [...char]
-    //         let list_length = target.length + char.length
-    //             console.log(list_length)
-    //         if (list_length < init_list.length){
-    //             for (let x in char_list){
-    //                 let char_index = char.map((item:any) => item.id).indexOf(char_list[x].id)
-    //                 console.log(char_index)
-    //                 if (char_index < 0){
-    //                     new_main.push({...char_list[x]})
-    //                 }
-    //             }
-    //             console.log(new_main)
-			
-    //         setChar(new_main)
-    //         }
-        
-    // },[char_list])
-
-    // useEffect(()=> {
-       
-    //         let new_main = [...char]
-    //         let new_target = [...target]
-    
-    //         for (let x in char_list){
-    //             let target_index = target.map((item:any) => item.id).indexOf(char_list[x].id)
-    //             let char_index = char.map((item:any) => item.id).indexOf(char_list[x].id)
-    //             if (target_index >= 0 && char_index < 0){
-    //                 new_target[target_index].name = char_list[x].name
-    //             }
-    //             if (char_index >= 0 && target_index < 0){
-    //                 new_main[char_index].name = char_list[x].name
-    //             }
-    //         }
-    //         setChar(new_main)
-    //         setTarget(new_target)
-
-    // },[])
-
 	
 
     const remove_all_targets = () => {

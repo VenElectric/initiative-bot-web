@@ -22,9 +22,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-config.json
-
 .env
+
+/src/dev.json
 
 /src/Legacy_Components
 
