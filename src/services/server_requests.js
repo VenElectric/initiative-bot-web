@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { server_endpoints } from './static'
 import {socket} from '../Context/SocketContext'
-import {url} from '../config.json'
+import {url} from '../dev.json'
 
 
 

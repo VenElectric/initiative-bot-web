@@ -1,5 +1,5 @@
 import React,{useContext,useEffect,useState,useRef} from "react";
-import { Container, Row,Card,Button,Col,Accordion,Alert,ListGroup,Modal } from "react-bootstrap";
+import { Container, Row,Card,Button,Col,Accordion,Alert,ListGroup,Modal,ToastContainer,Toast } from "react-bootstrap";
 import { SpellLine, InitiativeLine,TargetData } from "../Interfaces/Interfaces";
 import InitRecord from "./InitRecord";
 import SpellRecord from "./SpellRecord";
@@ -20,13 +20,18 @@ export default function SessionPage() {
 	const socket = useContext(SocketContext);
 	let mounted = useRef(true)
 
+	const [showA, setShowA] = useState(false);
+ 
+
+  	const toggleShowA = () => setShowA(!showA);
+
 	mounted.current = true
 	useEffect(() => {
 		socket.on('client_init',function(data:any){
 			console.log(data,'init')
 			setInit([...data.initiative])
 			setSort(data.sort)
-			setOndeck(data.on_deck)
+			setOndeck(data.ondeck)
 		})
 
 		socket.on('client_add_init',function(data:any){
@@ -108,6 +113,10 @@ export default function SessionPage() {
 			setSort(sort)
 			setOndeck(on_deck)
 		})
+
+		socket.on('save_complete',function(data:any){
+			toggleShowA()
+		})
 	}, [])
 
 	useEffect(()=> {
@@ -150,6 +159,25 @@ export default function SessionPage() {
 		initClose()
 	}
 
+	function save_data(){
+		//@ts-ignore
+		let init_data = JSON.parse(localStorage.getItem(`${projectkey}character`))
+		console.table(init_data)
+		//@ts-ignore
+		let spell_data = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
+		console.table(spell_data)
+		//@ts-ignore
+		let ondeck = localStorage.getItem(`${projectkey}character_ondeck`)
+		//@ts-ignore
+		let sort = localStorage.getItem(`${projectkey}character_sort`)
+
+		let session_id = localStorage.getItem('session_id')
+
+		if (init_data !== [] && spell_data !== []){
+			socket.emit('server_save',{spells:spell_data,init:init_data,room:session_id,ondeck:ondeck,sort:sort})
+		}
+	}
+
 	const [show_data,setShowdata] = useState(true)
 	const [spellshow,Setshow] = useState({} as SpellLine)
 
@@ -162,11 +190,23 @@ export default function SessionPage() {
 	const spellClose = () => setSpellMod(false);
 	const spellOpen = () => setSpellMod(true);
 
+	
+ 
+
 	return (
 		<>
-<Row className='justify-content-md-center listfeed'><h1 style={{alignContent:'center',textAlign:'center'}}><Alert className='initbotheader'>Initiative Bot</Alert></h1></Row>
+		<ToastContainer  position="middle-center">
+          <Toast show={showA} onClose={toggleShowA} className="p-3 ">
+            <Toast.Header closeButton={true}>
+            </Toast.Header>
+            <Toast.Body>Save Complete</Toast.Body>
+          </Toast>
+        </ToastContainer>
+<Row className='justify-content-md-center listfeed'><h1 style={{alignContent:'center',textAlign:'center'}}><Alert className='initbotheader'>Dungeon Bot</Alert></h1></Row>
+<br></br>
+<br></br>
+<Row className='justify-content-md-center listfeed'><Button className='screenbutborder' onClick={()=> save_data()}>Save Data</Button></Row>
 		<Container fluid>
-		
 		<br></br>
 		<br></br>
 			<Row className="justify-content-md-center">
