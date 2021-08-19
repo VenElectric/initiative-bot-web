@@ -1,5 +1,6 @@
 import React,{createContext} from 'react'
-import {socket_url} from '../dev.json'
+import {socket_url} from '../config.json'
+
 
 
 const io = require("socket.io-client");
