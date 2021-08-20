@@ -168,13 +168,17 @@ export default function SessionPage() {
 		console.table(spell_data)
 		//@ts-ignore
 		let ondeck = localStorage.getItem(`${projectkey}character_ondeck`)
+		ondeck?.replace('/','')
+		ondeck?.replace('"','')
+		console.log(ondeck)
 		//@ts-ignore
 		let sort = localStorage.getItem(`${projectkey}character_sort`)
-
+		sort?.replace('/','')
+		sort?.replace('"','')
 		let session_id = localStorage.getItem('session_id')
 
 		if (init_data !== [] && spell_data !== []){
-			socket.emit('server_save',{spells:spell_data,init:init_data,room:session_id,ondeck:ondeck,sort:sort})
+			socket.emit('server_save',{spells:spell_data,init:init_data,room:session_id,ondeck:ondeck,sort:Boolean(sort)})
 		}
 	}
 
@@ -215,7 +219,7 @@ export default function SessionPage() {
 				<Row ><h2>Initiative</h2><Button className='screenbutborder' onClick={() => initOpen()}><TiPlus></TiPlus></Button></Row>
 				<br></br>
 				<ReactSortable group="initiative" list={init_list} setList={setInit} onUpdate={update_order}>
-					{init_list != null
+					{init_list != null || []
 						? init_list.map((item:InitiativeLine) => {
 								return <Alert key={item.id} style={{borderStyle:`${item.cmark ? 'solid': 'none'}`,borderColor:`${item.cmark ? '#33ff00': 'black'}`,borderWidth:'3px'}}><Accordion className='initrecord'><InitRecord init_rec={item}/></Accordion></Alert>;
 						  })

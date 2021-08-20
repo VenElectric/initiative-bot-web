@@ -1,9 +1,10 @@
 import axios from 'axios'
 import { server_endpoints } from './static'
 import {socket} from '../Context/SocketContext'
-import {url} from '../config.json'
+import {devurl} from '../dev.json'
+import {produrl} from '../config.json'
 
-
+let url = produrl
 
 export function send_error(session_id,error_name,error_msg,tracer){
     socket.emit('error_reporting',{room:session_id,error_name:error_name,error_msg:error_msg,tracer:tracer})

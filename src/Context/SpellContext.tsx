@@ -17,7 +17,7 @@ export const SpellContext = createContext(spells_list);
 const SpellContextProvider = (props: any) => {
   const session_id = localStorage.getItem('session_id')
   const [spell_list, setSpells] = useLocalStorage("spell_list", [] as SpellLine[]);
-  const channel_id = localStorage.getItem('channel_id')
+  
   const load_spells = async () => {
     let init_data = await get_spells(session_id)
     try{

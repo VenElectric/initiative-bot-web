@@ -20,7 +20,6 @@ export const InitContext = createContext(character_list);
 
 const InitContextProvider = (props:any) => {
     const session_id = localStorage.getItem('session_id')
-    const channel_id = localStorage.getItem('channel_id')
     // @ts-ignore
     const [loading,setLoad] = useState(false)
     const [error,setError] = useState({})
@@ -33,15 +32,18 @@ const InitContextProvider = (props:any) => {
 
     const load_init = async () => {
         let init_data = await get_init(session_id)
+        console.log(init_data)
         try{
-            if (init_data === 0 || init_data === []){
+            if (init_data.init_list.length === 0 || init_data.init_list === []){
+                console.log('here')
                 setInit([])
-                setSort(false)
-                setOndeck(0)
+                setSort(init_data.initial.on_deck || false)
+                setOndeck(init_data.initial.sort || 0)
+                localStorage.setItem('channel_id',init_data.initial.channel_id)
             }
             else{
                 let sorted_list = await sort_init(init_data.init_list,false)
-               
+               console.trace(init_data.initial.channel_id)
                 setInit(sorted_list)
                 setOndeck(init_data.initial.on_deck)
                 setSort(init_data.initial.sort)
@@ -50,6 +52,7 @@ const InitContextProvider = (props:any) => {
         }
         catch(error){
             setInit([])
+            console.log(error)
         }
     }
     
@@ -244,6 +247,7 @@ const InitContextProvider = (props:any) => {
 
         setInit(new_state)
         let emit_data = [...new_state]
+        let channel_id = localStorage.getItem('channel_id')
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:emit_deck,initiative:emit_data})
         socket.emit('server_next',{channel_id:channel_id,next:new_state[current].name})
     }
@@ -287,6 +291,7 @@ const InitContextProvider = (props:any) => {
 
         setInit(new_state)
         let emit_data = [...new_state]
+        let channel_id = localStorage.getItem('channel_id')
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:emit_deck,initiative:emit_data},(answer:any) => {
             console.log(answer)
           })
@@ -349,7 +354,7 @@ const InitContextProvider = (props:any) => {
     }
 
     const send_init = () => {
-
+        let channel_id = localStorage.getItem('channel_id')
         socket.emit("server_show_init", {room:session_id,channel_id:channel_id
         });
       }
