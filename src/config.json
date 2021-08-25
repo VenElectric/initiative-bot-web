@@ -1,4 +1,5 @@
 {
     "produrl":"https://dungeon-bot-server.herokuapp.com",
-    "socket_url":"https://dungeon-bot-server.herokuapp.com"
+    "socket_url":"https://dungeon-bot-server.herokuapp.com",
+    "discord_url":"https://discord.com/api/oauth2/authorize?client_id=729222559677022239&permissions=259846044736&scope=bot"
 }

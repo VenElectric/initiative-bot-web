@@ -30,11 +30,9 @@ export default function SpellRecord({
   show_data: boolean;
   setRecord: any;
 }) {
-  const { init_list } = useContext(InitContext);
-  const { remove_spell, spell_list, setSpells } = useContext(SpellContext);
+  const { spell_list, setSpells } = useContext(SpellContext);
   const socket = useContext(SocketContext);
   
-  const projectkey = "initiativebot";
   
 
  
@@ -54,7 +52,6 @@ export default function SpellRecord({
     socket.emit('server_update_spell',{room:session_id,spell:new_spells[spell_index]})
   }
 
-  let mounted = useRef(true)
 
   
   return (

@@ -1,4 +1,3 @@
-import React from 'react'
 import { GiClick } from 'react-icons/gi'
 import { useAccordionButton,Button } from 'react-bootstrap';
 

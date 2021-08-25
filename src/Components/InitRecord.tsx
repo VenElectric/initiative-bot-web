@@ -1,4 +1,4 @@
-import { useEffect,useState,useContext,useRef } from "react";
+import { useEffect,useState,useContext } from "react";
 import { InitiativeLine } from "../Interfaces/Interfaces";
 import {TiDeleteOutline} from 'react-icons/ti'
 import {BsArrowUpDown} from "react-icons/bs";
@@ -9,8 +9,6 @@ import {
 	Button,
     Row,
 	Card,
-	Col,
-	Form
 } from "react-bootstrap";
 import EffectsContainer from "./EffectsContainer";
 import { InitContext } from "../Context/InitContext";

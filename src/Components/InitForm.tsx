@@ -1,4 +1,4 @@
-import React,{useContext} from "react";
+import {useContext} from "react";
 import {
 	Form,
 	OverlayTrigger,
@@ -8,12 +8,9 @@ import {
 	Button,
 	Modal
 } from "react-bootstrap";
-import { InitContext } from "../Context/InitContext";
-import { SocketContext } from "../Context/SocketContext";
 
 export default function InitForm({handle_submit}:{handle_submit:any}) {
 
-	const socket = useContext(SocketContext);
 	return (
 		<>
 		<Modal.Header closeButton className='spellcardheader'>

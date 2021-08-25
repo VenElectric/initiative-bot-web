@@ -1,5 +1,5 @@
 import React,{useContext,useEffect,useState,useRef} from "react";
-import { Container, Row,Card,Button,Col,Accordion,Alert,ListGroup,Modal,ToastContainer,Toast } from "react-bootstrap";
+import { Container, Row,Button,Col,Accordion,Alert,ListGroup,Modal,ToastContainer,Toast } from "react-bootstrap";
 import { SpellLine, InitiativeLine,TargetData } from "../Interfaces/Interfaces";
 import InitRecord from "./InitRecord";
 import SpellRecord from "./SpellRecord";
@@ -134,10 +134,6 @@ export default function SessionPage() {
 	  },[load_spells,load_init])
 
 
-	// spell target and main target lists
-	// // @ts-ignore
-	// const target_list = JSON.parse(localStorage.getItem(`${projectkey}target_list${record.id}`)) || [];
-	// // @ts-ignore
 	const [record, setRecord] = useState({} as SpellLine);
 
 	function spell_click(id:string){
@@ -206,6 +202,7 @@ export default function SessionPage() {
             <Toast.Body>Save Complete</Toast.Body>
           </Toast>
         </ToastContainer>
+		<br></br>
 <Row className='justify-content-md-center listfeed'><h1 style={{alignContent:'center',textAlign:'center'}}><Alert className='initbotheader'>Dungeon Bot</Alert></h1></Row>
 <br></br>
 <br></br>
@@ -213,18 +210,21 @@ export default function SessionPage() {
 		<Container fluid>
 		<br></br>
 		<br></br>
-			<Row className="justify-content-md-center">
-			<Col md={3} className='bordercol'>
+			<Row md={10} className="justify-content-md-center">
+			<Col lg={3} md={7} className='bordercol'>
 			<div className='mainborder'>
 				<Row ><h2>Initiative</h2><Button className='screenbutborder' onClick={() => initOpen()}><TiPlus></TiPlus></Button></Row>
 				<br></br>
+				{init_list ?
 				<ReactSortable group="initiative" list={init_list} setList={setInit} onUpdate={update_order}>
-					{init_list != null || []
-						? init_list.map((item:InitiativeLine) => {
-								return <Alert key={item.id} style={{borderStyle:`${item.cmark ? 'solid': 'none'}`,borderColor:`${item.cmark ? '#33ff00': 'black'}`,borderWidth:'3px'}}><Accordion className='initrecord'><InitRecord init_rec={item}/></Accordion></Alert>;
-						  })
-						: []}
-				</ReactSortable>
+				{init_list
+					? init_list.map((item:InitiativeLine) => {
+							return <Alert key={item.id} style={{borderStyle:`${item.cmark ? 'solid': 'none'}`,borderColor:`${item.cmark ? '#33ff00': 'black'}`,borderWidth:'3px'}}><Accordion className='initrecord'><InitRecord init_rec={item}/></Accordion></Alert>;
+					  })
+					: []}
+			</ReactSortable>
+			:[]}
+				
 				<br></br>
 				{sorted ? <><Button className='screenbutborder' onClick={() => send_init()}>Send Initiative to Discord</Button>
 					<br></br>
@@ -241,7 +241,7 @@ export default function SessionPage() {
 				<Modal show={initMod} onHide={initClose}><InitForm handle_submit={handle_init_submit}/></Modal>
 			</Col>
 			<Col xs='auto' className='bordercol'><div className='inbetweenborder'></div></Col>
-			<Col md={2} className='bordercol'>
+			<Col lg={2} md={6} className='bordercol'>
 			<div className='mainborder'>
 			<Row ><h2>Spells</h2><Button onClick={() => spellOpen()} className='screenbutborder'><TiPlus></TiPlus></Button></Row>
 			<ListGroup variant="flush">
@@ -260,8 +260,8 @@ export default function SessionPage() {
 			
 			<Col xs='auto' className='bordercol'><div className='inbetweenborder-two'></div></Col>
 			
-			<Col md={3} className='bordercol'>
-			<div className='mainborder'>
+			<Col lg={3} md={7} className='bordercol'>
+			<div className='infoborder'>
 				{/* @ts-ignore*/}
 				<SpellRecord change_color={change_color} record={record} show_data={show_data} setRecord={setRecord}/>
 				</div>

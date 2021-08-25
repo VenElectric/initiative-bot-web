@@ -1,14 +1,13 @@
-import { ItemInterface, ReactSortable,SortableEvent,MoveEvent, Sortable} from "react-sortablejs"
-import { MultiDrag, Swap } from "sortablejs";
-import React, {useEffect,useContext,useRef,useState,createRef} from 'react'
-import {Row,Col,Badge,Card,Button,InputGroup} from 'react-bootstrap'
+import { ReactSortable} from "react-sortablejs"
+
+import React, {useEffect,useContext,useState} from 'react'
+import {Col,Badge,Card,Button,InputGroup} from 'react-bootstrap'
 import { InitiativeLine,SpellLine,status_effects,TargetData } from "../Interfaces/Interfaces";
 import { ErrorBoundary } from "./ErrorBoundary";
 import useLocalStorage from "../Hooks/useLocaleStorage";
 import {InitContext} from "../Context/InitContext"
 import { SpellContext } from "../Context/SpellContext";
 import { SocketContext } from "../Context/SocketContext";
-import { GiTrousers } from "react-icons/gi";
 
 interface SpellRec{
     id: string|number
@@ -17,12 +16,11 @@ interface SpellRec{
     status_effects: status_effects[]
 }
 
-Sortable.mount(new MultiDrag());
 export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,show_data}:{spell_rec:any,spell_id:string,spell_name:string,spell_effect:string,show_data:boolean}) {
     const socket = useContext(SocketContext);
     const projectkey = 'initiativebot'
     const { spell_list,update_spell_effect,remove_spell_effect} = useContext(SpellContext);
-    const {init_list,remove_status_effect,new_target,char_list} = useContext(InitContext)
+    const {init_list,remove_status_effect,new_target} = useContext(InitContext)
     
     // @ts-ignore
 	const target_list = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`)) || [];

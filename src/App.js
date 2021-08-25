@@ -6,9 +6,7 @@ import './App.css'
 import InitContextProvider from "./Context/InitContext";
 import SpellContextProvider from "./Context/SpellContext";
 import {SocketContext} from './Context/SocketContext'
-
-
-// const socket = io('http://localhost:8000');
+import MainPage from "./Components/MainPage";
 
 
 
@@ -36,7 +34,7 @@ useEffect(() => {
     <InitContextProvider>
       <SpellContextProvider>
     <div className="App">
-     {sessionid != null ? <SessionPage></SessionPage>:<div>Page for Discord Bot</div>}
+     {sessionid != null ? <SessionPage></SessionPage>:<MainPage/>}
      </div>
      </SpellContextProvider>
      </InitContextProvider>

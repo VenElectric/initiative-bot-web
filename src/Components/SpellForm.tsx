@@ -8,7 +8,6 @@ import {
 	Button,
 	Modal
 } from "react-bootstrap";
-import {InitiativeLine} from '../Interfaces/Interfaces'
 
 export default function SpellForm({handle_submit}:{handle_submit:any}) {
 	return (
@@ -27,29 +26,6 @@ export default function SpellForm({handle_submit}:{handle_submit:any}) {
 					id="inlineFormInput"
 					placeholder="Spell name"
 				/>
-				{/* <Form.Label htmlFor="inlineFormInputGroup" visuallyHidden>
-					Target
-				</Form.Label>
-				<InputGroup className="mb-2">
-					<OverlayTrigger
-						key="1"
-						placement="top"
-						overlay={
-							<Tooltip id={`1`}>
-								Who is the spell targeting?
-							</Tooltip>
-						}
-					>
-						<InputGroup.Text>?</InputGroup.Text>
-					</OverlayTrigger>
-								<Form.Select className="me-sm-2" id="inlineFormCustomSelect">
-									<option value="0">Choose Target</option>
-									<option value="1">Party</option>
-                                    {char_data != null ? char_data.map((current:InitiativeLine)=> {
-                                        return <option key={current.id} value={current.id}>{current.name}</option>
-                                    }):[]}
-								</Form.Select>
-				</InputGroup> */}
 				<InputGroup className="mb-2">
 				<OverlayTrigger
 						key="2"
