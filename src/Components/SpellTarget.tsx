@@ -1,8 +1,8 @@
 import { ReactSortable} from "react-sortablejs"
 
-import React, {useEffect,useContext,useState} from 'react'
+import React, {useEffect,useContext} from 'react'
 import {Col,Badge,Card,Button,InputGroup} from 'react-bootstrap'
-import { InitiativeLine,SpellLine,status_effects,TargetData } from "../Interfaces/Interfaces";
+import { InitiativeLine,SpellLine,status_effects } from "../Interfaces/Interfaces";
 import { ErrorBoundary } from "./ErrorBoundary";
 import useLocalStorage from "../Hooks/useLocaleStorage";
 import {InitContext} from "../Context/InitContext"
@@ -31,20 +31,21 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
 	// const [target,setTarget] = useState([] as TargetData[])
 	// const [char,setChar] = useState([] as TargetData[])
 
-    const [mounted,setMount] = useState(true)
+    // const [mounted,setMount] = useState(true)
     
 
-    useEffect(()=> {
-        console.log(mounted,'mounted')
-        console.log(spell_id)
-        return () => {
-            setMount(false)
-            console.log(spell_id)
-            console.log(mounted,'unmounting')
-          }
-    })
+    // useEffect(()=> {
+    //     console.log(mounted,'mounted')
+    //     console.log(spell_id)
+    //     return () => {
+    //         setMount(false)
+    //         console.log(spell_id)
+    //         console.log(mounted,'unmounting')
+    //       }
+    // })
 	
 	useEffect(()=> {
+        // Whenever we load a spell record, we need to make sure that the target_list and main_list are updated properly
         // @ts-ignore
         let target_init = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`)) || [];
 	    // @ts-ignore
@@ -53,6 +54,8 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
             
             let char_data = []
             let target_data = []
+            
+            // load data to the target list (meaning there is an active effect) from init_list if there is an initiative record that matches the user_id array in this record
             if (target_init.length === 0 && main_init.length === 0 && spell_id !== undefined){
                 let spell_index = spell_list.map((item:SpellLine)=> item.id).indexOf(spell_id)
                 if(spell_list[spell_index].user_ids.length !== 0){
@@ -61,7 +64,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
                         target_data.push({id:init_list[init_index].id,name:init_list[init_index].name,status_effects:init_list[init_index].status_effects})
                     }
                 }
-                console.log('initialize data if both are 0')
+               // load the rest of the initiative names into the main list
             for (let x in init_list){
                 let index = target_data.map((item:any)=> item.id).indexOf(init_list[x].id)
                 if (index < 0){
@@ -93,6 +96,8 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
     },[spell_id])
 
     useEffect(()=>{
+        // any time the init_list is updated, then update the target_list and main_list
+        // This is mostly used when adding a new initiative record or deleting an initiative record
         setTimeout(()=>{
         //@ts-ignore
         let target_state = JSON.parse(localStorage.getItem(`${projectkey}target_list${spell_id}`))
@@ -105,6 +110,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
     },[init_list])
     
     useEffect(()=>{
+        // update any record's target and main data if other users have updated it
         socket.on('client_update_target',function(data:any){
         setTimeout(()=>{
             //@ts-ignore
@@ -120,7 +126,7 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
 	
 
     const remove_all_targets = () => {
-
+        // used to remove all targets from the target list and add them to the main list
         for(let x = 0;x<target.length;x++){
             remove_status_effect(x,target,spell_id)
         }
@@ -129,13 +135,13 @@ export default function SpellTarget({spell_rec,spell_id,spell_name,spell_effect,
     }
 
     const remove_all_char = () => {
+        // the reverse of the above function. target list to main list
         for(let x = 0;x<char.length;x++){
             new_target(x,char,spell_id,spell_name,spell_effect)
         }
         setTarget([...target,...char]) 
         setChar([])
     }
-    console.log(show_data)
 
     return (
         <>

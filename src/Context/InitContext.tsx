@@ -23,27 +23,29 @@ const InitContextProvider = (props:any) => {
     // @ts-ignore
     const [loading,setLoad] = useState(false)
     const [error,setError] = useState({})
-    // @ts-ignore
-    // const character_list = localStorage.getItem(`${projectkey}character`) != null ? JSON.parse(localStorage.getItem(`${projectkey}character`)): []
+
+    // initialize localstorage
     const [init_list,setInit] = useLocalStorage("character", [] as InitiativeLine[]);
     const [sorted,setSort] = useLocalStorage("character_sort",false)
     const [ondeck,setOndeck] = useLocalStorage("character_ondeck",0)
     const [char_list,setList] = useState(init_list.map((item) => {return {id:item.id,name:item.name,status_effects:item.status_effects}}))
 
+    // grab intitiative data from the database
     const load_init = async () => {
         let init_data = await get_init(session_id)
         console.log(init_data)
         try{
             if (init_data.init_list.length === 0 || init_data.init_list === []){
-                console.log('here')
+                // if no data is returned, then set init as an empty array. 
+                // other data should be there because the session is initiated through the discord bot
                 setInit([])
                 setSort(init_data.initial.on_deck || false)
                 setOndeck(init_data.initial.sort || 0)
                 localStorage.setItem('channel_id',init_data.initial.channel_id)
             }
             else{
+                // if there is data, sort the list and load it
                 let sorted_list = await sort_init(init_data.init_list,false)
-               console.trace(init_data.initial.channel_id)
                 setInit(sorted_list)
                 setOndeck(init_data.initial.on_deck)
                 setSort(init_data.initial.sort)
@@ -56,7 +58,7 @@ const InitContextProvider = (props:any) => {
         }
     }
     
-   
+   // legacy
     const getRandomColor = () => {
         var letters = '0123456789ABCDEF';
         var color = '#';
@@ -66,6 +68,7 @@ const InitContextProvider = (props:any) => {
         return color;
       }
 
+      // when the initiative list is changed (drag and drop) updated the line order
     const update_order = () => {
         
        setTimeout(()=>{
@@ -74,7 +77,6 @@ const InitContextProvider = (props:any) => {
         for(let x=0;x<new_state.length;x++){
                 new_state[x].line_order = x+1
             }
-            console.log(new_state)
         
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:ondeck,initiative:new_state},(answer:any) => {
                     console.log(answer)
@@ -84,23 +86,13 @@ const InitContextProvider = (props:any) => {
 
     }
 
-    // const update_status_color = (e:ChangeEvent<HTMLInputElement>,id:string) => {
-    //     let new_state = [...init_list]
-    //     let color = e.target.value
-    //     for (let x in new_state){
-    //         let new_index = new_state[x].status_effects.map((item:any) => item.id).indexOf(id)
-    //         if (new_index >= 0){
-    //             new_state[x].status_effects[new_index].color = color
-    //         }
-    //     }
-    //     setInit(new_state)
-    // }
-
+    // add in a new initiative
     const add_init = (e:any) => {
     
     let charid = String(uuid_v4())
     let init:number = 0
-        console.log(e.target[3].value)
+
+    // roll a dice if the user wants the bot to do it for them
     if (e.target[3].value === '0'){
         init = Number(e.target[2].value)
     }
@@ -109,6 +101,7 @@ const InitContextProvider = (props:any) => {
         console.log(diceroll.total)
         init = diceroll.total
     }
+    // construct the initiative object
     let new_data = {id: charid,
         name: e.target[0].value,
         init: Number(init),
@@ -118,20 +111,26 @@ const InitContextProvider = (props:any) => {
         npc: e.target[1].value,
         status_effects: [],
         }
-    setInit([...init_list,new_data])
-    setList([...char_list,{id:new_data.id,name:new_data.name,status_effects:new_data.status_effects}])
+    
+    
+
+    // reset the form
     let init_form = document.getElementById('init-form')
     if (init_form) (init_form as HTMLFormElement).reset()
 
+   // change all current marks to false (since we need to resort initiative)
     if(sorted){
         for (let x=0;x<init_list.length;x++){
             init_list[x].cmark=false
         }
     }
+     // if the sorted state is true, change it to false since we've added in a new intiaitive
     setSort(false)
-    // let response = add_new_init(session_id,new_data)
-    console.trace(new_data)
-    console.trace(init_list)
+    // add to inititiative list and character list (for spells)
+    setInit([...init_list,new_data])
+    setList([...char_list,{id:new_data.id,name:new_data.name,status_effects:new_data.status_effects}])
+   
+    // make sure to add in the new initiative record to all spell's main lists. 
     //@ts-ignore
     let spells = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
     for (let x = 0;x<spells.length;x++){
@@ -140,6 +139,8 @@ const InitContextProvider = (props:any) => {
         main_init.push({id:new_data.id,name:new_data.name,status_effects:new_data.status_effects})
         localStorage.setItem(`${projectkey}main_list${spells[x].id}`,JSON.stringify(main_init))
     }
+
+
     socket.emit('server_add_init',{room:session_id,sort:false,initiative:new_data})
 
     }
@@ -166,7 +167,7 @@ const InitContextProvider = (props:any) => {
                    })
          
         },1000) 
-        // update_init(targetid,new_target[new_index])
+        
     }
 
     const new_target = (id:string,char:any,spell_id:string,spell_name:string,spell_effect:string) => {
@@ -207,6 +208,7 @@ const InitContextProvider = (props:any) => {
         console.log(session_id)
         socket.emit('server_remove_init',{room:session_id,id:id})
     }
+    
     const next_turn = () => {
         let new_state = [...init_list]
         let current = new_state.map((item:any) => item.line_order).indexOf(ondeck)
@@ -251,6 +253,7 @@ const InitContextProvider = (props:any) => {
         socket.emit('server_init',{room:session_id,sort:sorted,on_deck:emit_deck,initiative:emit_data})
         socket.emit('server_next',{channel_id:channel_id,next:new_state[current].name})
     }
+
     const previous_turn = () => {
         let new_state = [...init_list]
         let next = new_state.map((item:any) => item.line_order).indexOf(ondeck)

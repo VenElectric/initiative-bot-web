@@ -15,7 +15,7 @@ import {TiDeleteOutline,TiPlus} from 'react-icons/ti'
 export default function SessionPage() {
 
 	const projectkey = 'initiativebot'
-	const {resort,load_init,init_list,add_init,setInit,sorted,sort_list,next_turn,previous_turn,setSort,setOndeck,update_order,send_init,char_list} = useContext(InitContext)
+	const {resort,load_init,init_list,add_init,setInit,sorted,sort_list,next_turn,previous_turn,setSort,setOndeck,update_order,send_init} = useContext(InitContext)
 	const {load_spells,spell_list,spell_submit,change_color,setSpells,send_spells,remove_spell} = useContext(SpellContext)
 	const socket = useContext(SocketContext);
 	let mounted = useRef(true)
@@ -28,27 +28,25 @@ export default function SessionPage() {
 	mounted.current = true
 	useEffect(() => {
 		socket.on('client_init',function(data:any){
-			console.log(data,'init')
+			// used for updating initiative
 			setInit([...data.initiative])
 			setSort(data.sort)
 			setOndeck(data.ondeck)
 		})
 
 		socket.on('client_add_init',function(data:any){
+			// called when new initiative is added to the list
 			setTimeout(()=>{
-				console.trace(data)
-				console.trace(init_list)
 				//@ts-ignore
 				let old_data =  JSON.parse(localStorage.getItem(`${projectkey}character`))
 				old_data.push(data.initiative)
-				console.log(old_data)
 				setInit(old_data)
 				setSort(data.sort)
 			},1000)
 		})
 
 		socket.on('client_update_init',function(data:any){
-			console.log('client update init')
+			// when values are updated in an initiative record
 			let new_init = data.initiative as InitiativeLine
 			let init_index = init_list.map((item:any) => item.id).indexOf(new_init.id)
 			let new_state = [...init_list]
@@ -57,6 +55,7 @@ export default function SessionPage() {
 		})
 
 		socket.on('client_remove_init',function(data:any){
+			// when an initiative record is removed
 			setTimeout(()=>{
 			//@ts-ignore
 			let new_state =  JSON.parse(localStorage.getItem(`${projectkey}character`))
@@ -67,7 +66,7 @@ export default function SessionPage() {
 		})
 
 		socket.on('client_update_spell',function(data:any){
-			
+			// when values are updated for a spell effect
 			setTimeout(()=>{
 				//@ts-ignore
 			let new_state = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
@@ -79,6 +78,7 @@ export default function SessionPage() {
 
 
 		socket.on('add_spell',function(data:any){
+			// add a new spell
 			console.log(data.spell)
 			setTimeout(()=>{
 				console.log('test?')
@@ -90,6 +90,7 @@ export default function SessionPage() {
 		})
 
 		socket.on('client_del_spell',function(data:any){
+			// when spell is deleted
 			setTimeout(()=>{
 				//@ts-ignore
 			let new_state = JSON.parse(localStorage.getItem(`${projectkey}spell_list`))
@@ -100,12 +101,16 @@ export default function SessionPage() {
 		})
 
 		socket.on('client_update_target',function(data:any){
+			// called whenever the target list is updated for a spell effect. 
+			// The main list holds a list of characters not targeted by the spell
+			// target list holds a list of characters that are targeted by the spell
 			let spell_id = data.id
 			localStorage.setItem(`${projectkey}target_list${spell_id}`, JSON.stringify(data.target))
 			localStorage.setItem(`${projectkey}main_list${spell_id}`, JSON.stringify(data.main))
 		})
 
 		socket.on('client_roundstart',function(data:any){
+			// start rounds/game start
 			let new_state = data.initiative
 			let sort = data.sort
 			let on_deck = data.ondeck
@@ -115,21 +120,20 @@ export default function SessionPage() {
 		})
 
 		socket.on('save_complete',function(data:any){
+			// show pop up when data is aved
 			toggleShowA()
 		})
 	}, [])
 
 	useEffect(()=> {
 	if (mounted.current){
-		console.log('mounted')
+		// load spells and initiative from db
 		load_spells()
 		load_init()
 		
 	}
 		return () => {
-		  console.log('unmounted')
 		  mounted.current=false
-		  
 		}
 	  },[load_spells,load_init])
 
@@ -137,25 +141,29 @@ export default function SessionPage() {
 	const [record, setRecord] = useState({} as SpellLine);
 
 	function spell_click(id:string){
-		console.trace('this is happening at spell click')
+		// click on spell name to show spell info
 		let index = spell_list.map((item:SpellLine) => item.id).indexOf(id)
+		// spell record updated so that info window updates whenever you click a different spell
 		setRecord(spell_list[index])
 		setShowdata(false)
 	}
 
 	function handle_spell_submit(e:any) {
+		// handle adding new spell
 		e.preventDefault();
 		spell_submit(e)
 		spellClose()
 	}
 
 	function handle_init_submit(e: any){
+		// handle adding new initiative
 		e.preventDefault();
 		add_init(e)
 		initClose()
 	}
 
 	function save_data(){
+		// grab the data from local storage, send to server to save in db
 		//@ts-ignore
 		let init_data = JSON.parse(localStorage.getItem(`${projectkey}character`))
 		console.table(init_data)
@@ -164,6 +172,7 @@ export default function SessionPage() {
 		console.table(spell_data)
 		//@ts-ignore
 		let ondeck = localStorage.getItem(`${projectkey}character_ondeck`)
+		// React was most likely adding in escape characters to these values so they need to be removed when sending to db
 		ondeck?.replace('/','')
 		ondeck?.replace('"','')
 		console.log(ondeck)
@@ -184,6 +193,7 @@ export default function SessionPage() {
 	const [initMod,setInitMod] = useState(false)
 	const [spellMod,setSpellMod] = useState(false)
 
+	// modal form functions 
 	const initClose = () => setInitMod(false);
 	const initOpen = () => setInitMod(true);
 	

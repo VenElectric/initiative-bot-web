@@ -2,6 +2,7 @@ import EffectsSlot from './EffectsSlot'
 import {Row,Col} from "react-bootstrap"
 import { InitiativeLine,status_effects } from "../Interfaces/Interfaces";
 
+//container for spell effects
 export default function EffectsContainer({init_rec}: {init_rec:InitiativeLine}) {
 
     

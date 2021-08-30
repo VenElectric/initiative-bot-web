@@ -1,6 +1,8 @@
 import { GiClick } from 'react-icons/gi'
 import { useAccordionButton,Button } from 'react-bootstrap';
 
+
+// Custom toggle for initiative accordion
 export default function CustomToggleIcon({ eventKey }:{eventKey:any}) {
 
         const decoratedOnClick = useAccordionButton(eventKey)

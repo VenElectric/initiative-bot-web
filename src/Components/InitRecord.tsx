@@ -22,6 +22,7 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 	const [record,setRecord] = useState(init_rec)
 
 	useEffect(()=> {
+		// any time that the initiative list is changed, update this record I.E. if a record is deleted or value is changed
 		let index = init_list.map((item:any)=> item.id).indexOf(record.id)
 		let new_state = [...init_list]
 
@@ -31,18 +32,27 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 	
 
 	async function init_roll(){
+		// reroll function that allows you to re-roll your initiative
+		// wait to roll a new initiative the function grabs the current initiative total and modifier 
+		// and then adds it to local storage state
 		await reroll_init(record.id)
 		let new_state:InitiativeLine;
+		// next we want to grab that state and add it back to this record
 		let record_index = init_list.map((item:any)=> item.id).indexOf(record.id)
+		// copy and set the state
 		new_state = {...init_list[record_index]}
 		setRecord(new_state)
 	}
 
 	function change_handler(key:string,value:any){
+		// handler for any updates to the values in the record
+		// put the record into a variable and change that variable[key] to the value input
 		let new_state = record
 		//@ts-ignore
 		new_state[key] = value
+		// chagne the state
 		setRecord(new_state)
+		// Update both the character list (used for effect targets) and the initiative state
 		let new_init = [...init_list]
 		let new_char = [...char_list]
 		let init_index = init_list.map((item:any) => item.id).indexOf(record.id)
@@ -51,6 +61,7 @@ export default function InitRecord({init_rec}: {init_rec:InitiativeLine}) {
 		new_char[char_index] = {id:record.id,name:record.name,status_effects:record.status_effects}
 		setInit(new_init)
 		setList(new_char)
+		// emit updates to server, which then emits to the session minus the user doing the emitting. 
 		let session_id = localStorage.getItem('session_id')
 		socket.emit('server_update_init',{room:session_id,initiative:new_init[init_index],id:record.id})
 	}

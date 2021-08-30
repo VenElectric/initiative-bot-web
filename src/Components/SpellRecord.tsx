@@ -39,6 +39,7 @@ export default function SpellRecord({
   
 
   function change_handler(key: string, e: any) {
+    // handle value changes for spell record
     let new_state = record;
     //@ts-ignore
     new_state[key] = e.target.value;

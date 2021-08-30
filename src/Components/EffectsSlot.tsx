@@ -6,7 +6,7 @@ import {
 
 import { status_effects } from "../Interfaces/Interfaces";
  
-
+// singular effect component that is placed in the effects container
 export default function EffectsSlot({effect}: {effect:status_effects}) {
 
 

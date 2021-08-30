@@ -1,4 +1,3 @@
-import {useContext} from "react";
 import {
 	Form,
 	OverlayTrigger,
@@ -9,6 +8,7 @@ import {
 	Modal
 } from "react-bootstrap";
 
+// form to submit new initiative. served in modal
 export default function InitForm({handle_submit}:{handle_submit:any}) {
 
 	return (
