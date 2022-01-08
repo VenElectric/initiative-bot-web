@@ -36,7 +36,7 @@ let dupes = [];
             if (init_list[x].id !== init_list[i].id){
                 
                 // only add to dupes array if both the initiative and init_mod are the same. If the initiative is similar, but the init_mod is not, the sort later will handle that.
-                if ((Number(init_list[x].init) == Number(init_list[i].init)) && (Number(init_list[x].init_mod) == Number(init_list[i].init_mod))){
+                if ((Number(init_list[x].init) === Number(init_list[i].init)) && (Number(init_list[x].init_mod) === Number(init_list[i].init_mod))){
                    
                     log_info(init_list[i].id,'Duplicate Added','sort_init - dupe detect')
                     dupes.push(init_list[i])
