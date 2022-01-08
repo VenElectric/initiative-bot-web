@@ -1,7 +1,6 @@
-import React, { createContext,useEffect } from "react";
+import React, { createContext } from "react";
 import useLocalStorage from "../Hooks/useLocaleStorage";
 import { v4 as uuid_v4 } from "uuid";
-import { ChangeEvent } from "react";
 import { socket } from "./SocketContext";
 import { SpellLine} from "../Interfaces/Interfaces";
 import { get_spells } from "../services/server_requests";
@@ -43,14 +42,6 @@ const SpellContextProvider = (props: any) => {
 //     load_spells()
 // },[])
   
-  const getRandomColor = () => {
-    var letters = "0123456789ABCDEF";
-    var color = "#";
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
 
   const spell_submit = (e: any) => {
    
