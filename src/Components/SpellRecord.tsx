@@ -1,22 +1,14 @@
-import { useState, useRef, useContext, useEffect } from "react";
-import { MdDeleteForever } from "react-icons/md";
-import { SpellLine, InitiativeLine } from "../Interfaces/Interfaces";
+import { useContext } from "react";
+import { SpellLine } from "../Interfaces/Interfaces";
 import SpellTarget from "./SpellTarget";
-import { InitContext } from "../Context/InitContext";
 import { SpellContext } from "../Context/SpellContext";
 import { SocketContext } from "../Context/SocketContext";
-import useLocalStorage from "../Hooks/useLocaleStorage";
 import {
-  Container,
   Card,
-  ListGroup,
   InputGroup,
   FormControl,
   Form,
-  Col,
   Row,
-  OverlayTrigger,
-  Tooltip,
 } from "react-bootstrap";
 
 export default function SpellRecord({

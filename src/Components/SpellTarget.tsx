@@ -1,9 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ReactSortable} from "react-sortablejs"
 
 import React, {useEffect,useContext} from 'react'
 import {Col,Badge,Card,Button,InputGroup} from 'react-bootstrap'
 import { InitiativeLine,SpellLine,status_effects } from "../Interfaces/Interfaces";
-import { ErrorBoundary } from "./ErrorBoundary";
 import useLocalStorage from "../Hooks/useLocaleStorage";
 import {InitContext} from "../Context/InitContext"
 import { SpellContext } from "../Context/SpellContext";
