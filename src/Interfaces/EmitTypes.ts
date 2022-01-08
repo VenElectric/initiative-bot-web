@@ -1,0 +1,11 @@
+export enum EmitTypes {
+    GET_INITIAL = "GET_INITIAL",
+    NEXT = "NEXT",
+    PREVIOUS = "PREVIOUS",
+    ROUND_START = "ROUND_START",
+    RESORT = "RESORT",
+    EDIT = "EDIT",
+    DELETE_DATA = "DELETE_DATA",
+    CREATE_NEW = "CREATE_NEW",
+    RE_ROLL = "RE_ROLL",
+  }
