@@ -1,31 +1,11 @@
 import { Socket } from "socket.io-client";
-import { Ref } from "vue";
-import {
-  InitiativeObject,
-  SessionData,
-  SpellObject,
-} from "../interfaces/initiative";
+import { InitiativeObject, SessionData, SpellObject } from "../Interfaces/initiative";
+import { EmitTypes } from "../Interfaces/EmitTypes";
+import { InitiativeContextEnums, CollectionTypes, PayloadType} from "../Interfaces/ContextEnums";
+import {emitData} from "../Utils/SocketEmit";
 
-export enum SessionFunctionTypes {
-  GET_INITIAL = "GET_INITIAL",
-  NEXT = "NEXT",
-  PREVIOUS = "PREVIOUS",
-  ROUND_START = "ROUND_START",
-  EDIT = "EDIT",
-  DELETE_DATA = "DELETE_DATA",
-  CREATE_NEW = "CREATE_NEW",
-  RE_ROLL = "RE_ROLL",
-}
-
-export enum collectionTypes {
-  INITIATIVE = "initiative",
-  SPELLS = "spells",
-  ALL = "all",
-}
-
-type PayloadType = InitiativeObject | SpellObject | SessionData | string;
-
-function isSessionData(payload: PayloadType): payload is SessionData {
+export function isSessionData(payload: any) {
+  console.info(payload, "payload")
   if (payload as SessionData) {
     return true;
   } else {
@@ -33,7 +13,7 @@ function isSessionData(payload: PayloadType): payload is SessionData {
   }
 }
 
-function isIInit(payload: PayloadType): payload is InitiativeObject {
+export function isInitiativeObject(payload: any): payload is InitiativeObject {
   if (payload as InitiativeObject) {
     return true;
   } else {
@@ -41,7 +21,7 @@ function isIInit(payload: PayloadType): payload is InitiativeObject {
   }
 }
 
-function isSpellLIst(payload: PayloadType): payload is SpellObject {
+export function isSpellObject(payload: any): payload is SpellObject {
   if (payload as SpellObject) {
     return true;
   } else {
@@ -49,157 +29,206 @@ function isSpellLIst(payload: PayloadType): payload is SpellObject {
   }
 }
 
-// async function emitData(
-//   socket: Ref<Socket>,
-//   emit: SessionFunctionTypes,
-//   sessionId: string,
-//   callback: (data: PayloadType) => void,
-//   payload?: PayloadType,
-//   collectionType?: collectionTypes
-// ): Promise<void> {
-//   socket.value.emit(
-//     emit,
-//     payload ? { payload, sessionId, collectionType } : sessionId,
-//     (responseData: PayloadType) => {
-//       callback(responseData);
-//     }
-//   );
-// }
+export function isInitiativeObjectArray(payload: any): payload is InitiativeObject[] {
+  if (payload as InitiativeObject[]) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
+export function isSpellObjectArray(payload: any): payload is SpellObject[] {
+  if (payload as SpellObject[]) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function collectionequalsObject(collection:CollectionTypes, item: InitiativeObject | SpellObject) {
+  if (collection === CollectionTypes.INITIATIVE){
+    return isInitiativeObject(item);
+  }
+  if (collection === CollectionTypes.SPELLS){
+    return isSpellObject(item);
+  }
+}
+
+
+// KEEP FOR NOW. DELETE LATER IF NOT NEEDED
 // export const sessionFunctions = {
-//   async [SessionFunctionTypes.GET_INITIAL](
-//     socket: Ref<Socket>,
+//   async [InitiativeContextEnums.INITIAL_INIT](
+//     socket: Socket,
 //     sessionId: string
 //   ): Promise<void> {
-//     await emitData(
-//       socket,
-//       SessionFunctionTypes.GET_INITIAL,
-//       sessionId,
-//       (data) => {
+//     socket.emit(
+//       EmitTypes.GET_INITIAL,
+//       {sessionId: sessionId,collectionType: InitiativeContextEnums},
+//       (data: ISessionData) => {
+//         console.log(data)
 //         if (isISessionData(data)) {
-//           data.spellList.forEach((spell: SpellList) => {
-//             localStorage.setItem(
-//               `dungeonbot-session-${sessionId}-spell-${spell.id}`,
-//               JSON.stringify(spell)
-//             );
-//           });
+//           let dataIds: string[] = [];
 //           data.initiativeList.forEach((initiative: IInit) => {
 //             localStorage.setItem(
 //               `dungeonbot-session-${sessionId}-initiative-${initiative.id}`,
 //               JSON.stringify(initiative)
 //             );
+//             dataIds.push(initiative.id)
 //           });
+//           localStorage.setItem(`dungeonbot-session-${sessionId}-initiative`, JSON.stringify(dataIds))
+//           localStorage.setItem(`dungeonbot-session-${sessionId}-isSorted`,JSON.stringify(data.isSorted))
 //         }
 //       }
 //     );
 //   },
-//   async [SessionFunctionTypes.NEXT](
-//     socket: Ref<Socket>,
+//   async [SessionFunctionTypes.GET_INITIAL_SPELLS](
+//     socket: Socket,
 //     sessionId: string
 //   ): Promise<void> {
-//     await emitData(
+//     socket.emit(
+//       EmitTypes.GET_INITIAL,
+//      sessionId,
+//       (data: SpellList) => {
+//         if (isSpellLIst(data)) {
+//           let dataIds: string[] = [];
+//           data.forEach((spell: SpellList) => {
+//             localStorage.setItem(
+//               `dungeonbot-session-${sessionId}-spell-${spell.id}`,
+//               JSON.stringify(spell)
+//             );
+//             dataIds.push(spell.id)
+//           });
+//           localStorage.setItem(`dungeonbot-session-${sessionId}-spells`, JSON.stringify(dataIds))
+//         }
+//       },
+//     );
+//   },
+//   async [SessionFunctionTypes.NEXT](
+//     socket: Socket,
+//     sessionId: string
+//   ): Promise<void> {
+//     emitData(
 //       socket,
-//       SessionFunctionTypes.NEXT,
+//       EmitTypes.NEXT,
 //       sessionId,
-//       (data: PayloadType) => {
+//       (data:any) => {
 //         if (isIInit(data)) {
 //           console.log(data);
 //         }
+//         return data;
 //       }
 //     );
 //   },
 //   async [SessionFunctionTypes.PREVIOUS](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string
 //   ): Promise<void> {
 //     await emitData(
 //       socket,
-//       SessionFunctionTypes.PREVIOUS,
+//       EmitTypes.PREVIOUS,
 //       sessionId,
-//       (data: PayloadType) => {
+//       (data: any) => {
 //         if (isIInit(data)) {
 //           console.assert(true);
 //           console.log(data);
 //         }
+//         return data;
 //       }
 //     );
 //   },
 //   async [SessionFunctionTypes.ROUND_START](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string
 //   ): Promise<void> {
 //     await emitData(
 //       socket,
-//       SessionFunctionTypes.ROUND_START,
+//       EmitTypes.ROUND_START,
 //       sessionId,
-//       (data: PayloadType) => {
-//         console.log(data);
+//       async (data) => {
+//         if (isIInit(data)) {
+//           console.assert(true);
+//           console.log(data);
+//         }
+//         return data;
 //       }
 //     );
 //   },
 //   async [SessionFunctionTypes.EDIT](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string,
 //     collectionType: collectionTypes,
 //     payload: ISessionData
 //   ): Promise<void> {
 //     await emitData(
 //       socket,
-//       SessionFunctionTypes.EDIT,
+//       EmitTypes.UPDATE_ONE,
 //       sessionId,
-//       (data: PayloadType) => {
-//         console.log(data);
+//       async (data) => {
+//         if (isIInit(data)) {
+//           console.assert(true);
+//           console.log(data);
+//         }
+//         return data;
 //       },
 //       payload,
 //       collectionType
 //     );
 //   },
 //   async [SessionFunctionTypes.DELETE_DATA](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string,
 //     collectionType: collectionTypes,
 //     dataId: string
 //   ): Promise<void> {
 //     await emitData(
 //       socket,
-//       SessionFunctionTypes.DELETE_DATA,
+//       EmitTypes.DELETE_ONE,
 //       sessionId,
-//       (data: PayloadType) => {
-//         console.log(data);
+//       async (data) => {
+//         if (isIInit(data)) {
+//           console.assert(true);
+//           console.log(data);
+//         }
+//         return data;
 //       },
 //       dataId,
 //       collectionType
 //     );
 //   },
 //   async [SessionFunctionTypes.CREATE_NEW](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string,
 //     collectionType: collectionTypes,
 //     payload: IInit | SpellList
 //   ): Promise<void> {
-//     await emitData(
+//     console.log(sessionId)
+//     emitData(
 //       socket,
-//       SessionFunctionTypes.CREATE_NEW,
+//      EmitTypes.CREATE_NEW,
 //       sessionId,
-//       (data: PayloadType) => {
-//         console.log(data);
+//       async (data) => {
+//       console.log(data)
 //       },
 //       payload,
 //       collectionType
 //     );
 //   },
 //   async [SessionFunctionTypes.RE_ROLL](
-//     socket: Ref<Socket>,
+//     socket: Socket,
 //     sessionId: string,
 //     collectionType: collectionTypes,
 //     dataId: string
 //   ): Promise<void> {
 //     await emitData(
 //       socket,
-//       SessionFunctionTypes.RE_ROLL,
+//       EmitTypes.RE_ROLL,
 //       sessionId,
-//       (data: PayloadType) => {
-//         console.log(data);
+//       async (data) => {
+//         if (isIInit(data)) {
+//           console.assert(true);
+//           console.log(data);
+//         }
+//         return data;
 //       },
 //       dataId,
 //       collectionType

@@ -43,7 +43,9 @@ body,html {
   background-size:50vw,50vw;
     background-repeat: repeat-y;
     background-color: #05302e;
-
+    -webkit-text-size-adjust:  auto;
+    -moz-text-size-adjust: auto;
+   
   }
  
 }
@@ -55,7 +57,8 @@ body,html {
     background-size:50vw,50vw;
     background-repeat: repeat-y;
     background-color: #05302e;
-
+    -webkit-text-size-adjust:  auto;
+    -moz-text-size-adjust: auto;
     
   }
 }
@@ -67,6 +70,9 @@ body,html {
     background-size:50vw,50vw;
     background-repeat: repeat-y;
     background-color: #05302e;
+    -webkit-text-size-adjust:  auto;
+    -moz-text-size-adjust: auto;
+   
    
   }
 }
