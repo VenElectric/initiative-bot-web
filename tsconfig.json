@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES6",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
@@ -15,9 +15,9 @@
       "webpack-env"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+        "@/*": [
+         "./*"
+        ]
     },
     "lib": [
       "esnext",
@@ -32,8 +32,19 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-, "src/firesinit.ts"  ],
+, "src/firesinit.ts", "src/assets/static.ts"  ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "configureWebpack": {
+    "module": {
+      "rules": [
+        {
+          "test": "/\\.mjs$/",
+          "include": "/node_modules/",
+          "type": "javascript/auto"
+        }
+      ] 
+    }
+  }
 }

@@ -78,33 +78,28 @@ export default defineComponent({
       email: null,
     };
   },
-  setup(): LoginorError {
+  setup() {
     const auth = getAuth();
     const router = useRouter();
 
-    const emailref = reactive({ email: "" });
-    const passref = reactive({ password: "" });
-    const errorref = reactive({ errormsg: "" });
+    const login = reactive({ email: "", password: "", errormsg: "" });
     const login_user = async () => {
       try {
-        await signInWithEmailAndPassword(
-          auth,
-          emailref.email,
-          passref.password
-        );
+        await signInWithEmailAndPassword(auth, login.email, login.password);
         router.push("/");
-      } catch (error: any) {
-        errorref.errormsg = error.message;
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        login.errormsg = error.message;
       }
     };
-    return { login_user, errorref };
+    return { login_user, login };
   },
 });
-
-interface LoginorError {
-  login_user: (e: EventTarget) => Promise<void>;
-  errorref: any;
-}
 </script>
 
-<style></style>
+<style>
+.user {
+  height: 50px;
+}
+</style>

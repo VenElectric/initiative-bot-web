@@ -1,10 +1,25 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/monsterlist">Monster List</router-link>
+    <router-link to="/characterlist">Character List</router-link>
+    <router-link to="/gamesessions">Game Sessions</router-link>
   </div>
   <router-view />
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { io } from "socket.io-client";
+
+export default defineComponent({
+  provide() {
+    return {
+      socket: io("localhost:8000"),
+    };
+  },
+});
+</script>
 
 <style lang="scss">
 #app {

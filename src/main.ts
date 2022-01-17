@@ -1,6 +1,15 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
+import PrimeVue from "primevue/config";
+import "primevue/resources/themes/saga-blue/theme.css";
+import "primevue/resources/primevue.min.css";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
+import Tooltip from "primevue/tooltip";
 
-createApp(App).use(store).use(router).mount("#app");
+createApp(App)
+  .directive("tooltip", Tooltip)
+  .use(PrimeVue)
+  .use(router)
+  .mount("#app");
