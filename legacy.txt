@@ -1,0 +1,19 @@
+ <div class="card" :class="isOpen ? 'open' : 'closed'">
+      <div class="card-header">
+        <div class="delete header-content">X</div>
+        <input
+          type="text"
+          class="header-content"
+          :value="initiative?.characterName"
+        />
+        <button class="header-content">Current</button>
+        <div class="toggle header-content" @click="toggleAcc">V</div>
+      </div>
+      <div class="card-body">
+        <div>
+          <div>Initiative Total: {{ initiative?.initiative }}</div>
+          <div>Reroll</div>
+        </div>
+        <div>Modifier: {{ initiative?.initiativeModifier }}</div>
+      </div>
+    </div>
