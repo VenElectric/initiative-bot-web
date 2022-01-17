@@ -2,6 +2,8 @@ import { Row, Alert, Container, Button, Col } from "react-bootstrap";
 import { discord_url } from "../config.json";
 
 export default function MainPage() {
+
+  
   return (
     <>
       <br></br>

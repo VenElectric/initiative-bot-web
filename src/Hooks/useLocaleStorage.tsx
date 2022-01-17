@@ -2,10 +2,10 @@ import { useState } from "react";
 
 const projectkey = 'initiativebot'
 
-export default function useLocalStorage<T>(key: string, initialValue?: T) {
+export default function useLocalStorage<T>(sessionId: string,key: string, initialValue?: T) {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once
-    const prefixedkey = projectkey+key
+    const prefixedkey = `${projectkey}-${sessionId}-${key}`
     const [storedValue, setStoredValue] = useState<T>(() => {
       try {
         // Get from local storage by key

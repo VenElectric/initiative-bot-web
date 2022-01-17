@@ -17,10 +17,14 @@
     background-color: #0c191c;
 }
 
+.title-content {
+    align-content: center;
+    text-align: center;
+}
+
 p {
     color:#33ff00;
     font-family: 'modern_sansregular';
-    text-size-adjust: auto;
     margin-left:auto;
     margin-right:auto;
 }
@@ -55,7 +59,6 @@ h2,h3 {
     outline: 1px solid #33ff00;
     overflow-x: hidden;
   overflow-y: auto;
-  max-height: 60%;
   padding: revert;
   border-width: 5px;
   padding-bottom: 15px;

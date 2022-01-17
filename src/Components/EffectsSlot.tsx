@@ -3,11 +3,10 @@ import {
 	OverlayTrigger,
 	Tooltip,
 } from "react-bootstrap";
-
-import { status_effects } from "../Interfaces/Interfaces";
+import {StatusEffect} from "../Interfaces/initiative";
  
 // singular effect component that is placed in the effects container
-export default function EffectsSlot({effect}: {effect:status_effects}) {
+export default function EffectsSlot({effect}: {effect:StatusEffect}) {
 
 
 
@@ -16,10 +15,10 @@ export default function EffectsSlot({effect}: {effect:status_effects}) {
         key={effect.id}
         placement="top"
         overlay={
-            <Tooltip id={effect.id}>{effect.effect}</Tooltip>
+            <Tooltip id={effect.id}>{effect.effectDescription}</Tooltip>
         }
     >
-       <Badge className='effectslot'>{effect.name}</Badge>
+       <Badge className='effectslot'>{effect.spellName}</Badge>
     </OverlayTrigger>
     )
 }
