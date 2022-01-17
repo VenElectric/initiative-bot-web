@@ -1,50 +1,26 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2021",
     "module": "esnext",
     "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "types": [
-      "webpack-env"
-    ],
-    "paths": {
-        "@/*": [
-         "./*"
-        ]
-    },
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "lib": [
-      "esnext",
       "dom",
       "dom.iterable",
-      "scripthost"
-    ]
+      "esnext"
+    ],
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-, "src/firesinit.ts", "src/assets/static.ts"  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "configureWebpack": {
-    "module": {
-      "rules": [
-        {
-          "test": "/\\.mjs$/",
-          "include": "/node_modules/",
-          "type": "javascript/auto"
-        }
-      ] 
-    }
-  }
+    "src"
+  ]
 }
