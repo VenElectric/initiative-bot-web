@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { InitiativeObjectEnums } from "../../../interfaces/initiative";
+import { InitiativeObjectEnums } from "../../../Interfaces/ContextEnums";
 import Button from "primevue/button";
 import Inplace from "primevue/inplace";
 import InputText from "primevue/inputtext";

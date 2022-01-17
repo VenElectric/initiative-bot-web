@@ -30,9 +30,3 @@ export enum SessionFunctionTypes {
   REMOVE_STATUS_EFFECT = "REMOVE_STATUS_EFFECT",
   SET_CURRENT_TURN = "SET_CURRENT_TURN",
 }
-
-export enum CollectionTypes {
-  INITIATIVE = "initiative",
-  SPELLS = "spells",
-  LOGGING = "logging",
-}

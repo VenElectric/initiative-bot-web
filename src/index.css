@@ -1,0 +1,72 @@
+
+
+@font-face {
+  font-family: 'boldbold';
+  src: url('/src/Fonts/cunia-webfont.woff2') format('woff2'),
+       url('/src/Fonts/cunia-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@font-face {
+  font-family: 'modern_sansregular';
+  src: url('/src/Fonts/moderne_sans_font-webfont.woff2') format('woff2'),
+       url('/src/Fonts/moderne_sans_font-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+body,html {
+  height: auto;
+  width:100%;
+  margin: 0;
+  font-family: 'boldbold'!important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: url('./svgleft_m.svg'),url('./svgright_m.svg');
+  background-position: left,right;
+  background-size:50vw,50vw;
+  background-repeat: repeat-y;
+  background-color: #05302e;
+  text-size-adjust: auto;
+  -webkit-text-size-adjust:  auto;
+  -moz-text-size-adjust: auto;
+ 
+}
+
+@media only screen and (max-width: 400px){
+  body,html {
+    background-image: url('./svgleft_m.svg'),url('./svgright_m.svg');
+    background-position: left center,right center;
+  background-size:50vw,50vw;
+    background-repeat: repeat-y;
+    background-color: #05302e;
+
+  }
+ 
+}
+
+@media only screen and (max-width: 768px) and (min-width: 500px){
+  body,html {
+    background-image: url('./svgleft_m.svg'),url('./svgright_m.svg');
+    background-position: left,right;
+    background-size:50vw,50vw;
+    background-repeat: repeat-y;
+    background-color: #05302e;
+
+    
+  }
+}
+
+@media only screen and (max-height: 768px) and (orientation:landscape){
+  body,html {
+    background-image: url('./svgleft_m.svg'),url('./svgright_m.svg');
+    background-position: left,right;
+    background-size:50vw,50vw;
+    background-repeat: repeat-y;
+    background-color: #05302e;
+   
+  }
+}

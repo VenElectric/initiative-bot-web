@@ -2,7 +2,7 @@ import { Socket } from "socket.io-client";
 import { Ref } from "vue";
 import {
   InitiativeObject,
-  ISessionData,
+  SessionData,
   SpellObject,
 } from "../interfaces/initiative";
 
@@ -23,10 +23,10 @@ export enum collectionTypes {
   ALL = "all",
 }
 
-type PayloadType = InitiativeObject | SpellObject | ISessionData | string;
+type PayloadType = InitiativeObject | SpellObject | SessionData | string;
 
-function isISessionData(payload: PayloadType): payload is ISessionData {
-  if (payload as ISessionData) {
+function isSessionData(payload: PayloadType): payload is SessionData {
+  if (payload as SessionData) {
     return true;
   } else {
     return false;

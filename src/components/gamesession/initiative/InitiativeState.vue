@@ -39,8 +39,9 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, inject, Ref } from "vue";
 import { Socket } from "socket.io-client";
-import { CollectionTypes, EmitTypes } from "../../../interfaces/EmitTypes";
-import { InitiativeObject } from "../../../interfaces/initiative";
+import { EmitTypes } from "../../../Interfaces/EmitTypes";
+import { CollectionTypes } from "../../../Interfaces/ContextEnums";
+import { InitiativeObject } from "../../../Interfaces/initiative";
 import InitRecord from "./InitRecord.vue";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
