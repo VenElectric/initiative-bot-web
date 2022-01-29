@@ -1,5 +1,3 @@
-import { Socket } from "socket.io-client";
-import { Ref } from "vue";
 import {
   InitiativeObject,
   SessionData,
@@ -15,12 +13,6 @@ export enum SessionFunctionTypes {
   DELETE_DATA = "DELETE_DATA",
   CREATE_NEW = "CREATE_NEW",
   RE_ROLL = "RE_ROLL",
-}
-
-export enum collectionTypes {
-  INITIATIVE = "initiative",
-  SPELLS = "spells",
-  ALL = "all",
 }
 
 type PayloadType = InitiativeObject | SpellObject | SessionData | string;

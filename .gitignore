@@ -28,5 +28,3 @@ src/firesinit.ts
 
 src/components/ReactComponents
 src/components/ReactComponents/Context
-src/Interfaces/initiative.ts
-src/Interfaces/EmitTypes.ts

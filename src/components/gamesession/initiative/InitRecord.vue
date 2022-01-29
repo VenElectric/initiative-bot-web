@@ -1,37 +1,33 @@
 <template>
-  <Card>
+  <Card class="p-d-flex p-flex-column">
     <template #content>
-      <div class="p-fluid p-grid">
-        <div class="p-field p-col-12 p-md-4">
-          <span
-            v-tooltip.top="
-              'Enter the d20 roll for your initiative. Do not add your modifier'
+      <div>
+        <span
+          v-tooltip.top="
+            'Enter the d20 roll for your initiative. Do not add your modifier'
+          "
+        >
+          <InputNumber
+            id="initiative"
+            :model-value="data.record.initiative"
+            @update:model-value="
+              (e) => handleChange(e, InitiativeObjectEnums.initiative)
             "
-          >
-            <InputNumber
-              id="initiative"
-              :model-value="data.record.initiative"
-              @update:model-value="
-                (e) => handleChange(e, InitiativeObjectEnums.initiative)
-              "
-            />
-          </span>
-          <label for="initiative">Initiative Total</label>
-        </div>
-        <div class="p-field p-col-12 p-md-4">
-          <span
-            v-tooltip.top="'Enter your initiative modifier. Integers only.'"
-          >
-            <InputNumber
-              id="initiativeModifier"
-              :model-value="data.record.initiativeModifier"
-              @update:model-value="
-                (e) => handleChange(e, InitiativeObjectEnums.initiativeModifier)
-              "
-            />
-          </span>
-          <label for="initiativeModifier">Initiative Modifier</label>
-        </div>
+          />
+        </span>
+        <label for="initiative">Initiative Total</label>
+      </div>
+      <div>
+        <span v-tooltip.top="'Enter your initiative modifier. Integers only.'">
+          <InputNumber
+            id="initiativeModifier"
+            :model-value="data.record.initiativeModifier"
+            @update:model-value="
+              (e) => handleChange(e, InitiativeObjectEnums.initiativeModifier)
+            "
+          />
+        </span>
+        <label for="initiativeModifier">Initiative Modifier</label>
       </div>
     </template>
     <template #footer>
@@ -42,10 +38,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive } from "vue";
-import {
-  InitiativeObject,
-  InitiativeObjectEnums,
-} from "../../../interfaces/initiative";
+import { InitiativeObject } from "../../../Interfaces/initiative";
+import { InitiativeObjectEnums } from "../../../Interfaces/ContextEnums";
 import Card from "primevue/card";
 import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
@@ -87,3 +81,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style>
+.pi-pencil {
+  font-size: 0.5em !important;
+}
+</style>

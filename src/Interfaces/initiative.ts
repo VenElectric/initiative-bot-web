@@ -8,7 +8,6 @@ export interface StatusEffect {
 export interface CharacterStatus {
   characterId: string;
   characterName: string;
-  isAffected: boolean;
 }
 
 export interface InitiativeObject {
@@ -24,11 +23,11 @@ export interface InitiativeObject {
 
 export interface SpellObject {
   durationTime: number;
-  durationType: number;
+  durationType: string;
   effectName: string;
   effectDescription: string;
   id: string;
-  characterIds: CharacterStatus[];
+  characterIds: CharacterStatus[][];
 }
 
 export interface SessionData {

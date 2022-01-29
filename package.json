@@ -12,7 +12,7 @@
     "@dice-roller/rpg-dice-roller": "^5.1.0",
     "core-js": "^3.6.5",
     "firebase": "^9.1.1",
-    "primeflex": "^2.0.0",
+    "primeflex": "^3.1.2",
     "primeicons": "^5.0.0",
     "primevue": "^3.10.0",
     "socket.io-client": "^4.4.0",
@@ -23,6 +23,7 @@
     "vue-socket.io": "^3.0.10"
   },
   "devDependencies": {
+    "@types/uuid": "^8.3.4",
     "@types/vue-feather-icons": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",

@@ -3,13 +3,13 @@
 </template>
 
 <script lang="ts">
-import { IStatus } from "@/src/interfaces/initiative";
+import { StatusEffect } from "../../../interfaces/initiative";
 import { defineComponent, PropType } from "vue";
 import Chip from "primevue/chip";
 
 export default defineComponent({
   name: "Effect",
   components: { Chip },
-  props: { effect: Object as PropType<IStatus> },
+  props: { effect: Object as PropType<StatusEffect> },
 });
 </script>

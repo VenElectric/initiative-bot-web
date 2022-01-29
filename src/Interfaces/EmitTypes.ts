@@ -1,13 +1,18 @@
+import { InitiativeObject, SpellObject, SessionData } from "./initiative";
+import { CollectionTypes } from "./Enums";
+
 export enum EmitTypes {
   GET_INITIAL = "GET_INITIAL",
+  GET_SPELLS = "GET_SPELLS",
   NEXT = "NEXT",
   PREVIOUS = "PREVIOUS",
   ROUND_START = "ROUND_START",
-  UPDATE_ONE = "UPDATE_ONE",
   UPDATE_ALL = "UPDATE_ALL",
   DELETE_ONE = "DELETE_ONE",
   DELETE_ALL = "DELETE_ALL",
   CREATE_NEW = "CREATE_NEW",
+  UPDATE_ITEM = "UPDATE_ITEM",
+  UPDATE_RECORD = "UPDATE_RECORD",
   RE_ROLL = "RE_ROLL",
   RESORT = "RESORT",
   DISCORD = "DISCORD",
@@ -29,4 +34,16 @@ export enum SessionFunctionTypes {
   DISCORD = "DISCORD",
   REMOVE_STATUS_EFFECT = "REMOVE_STATUS_EFFECT",
   SET_CURRENT_TURN = "SET_CURRENT_TURN",
+}
+
+export interface SocketData {
+  payload:
+    | InitiativeObject
+    | InitiativeObject[]
+    | SpellObject
+    | SpellObject[]
+    | SessionData;
+  sessionId: string;
+  collectionType: CollectionTypes;
+  docId?: string;
 }

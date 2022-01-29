@@ -11,6 +11,14 @@
           (e) => handleChange(e, InitiativeObjectEnums.characterName)
         "
       />
+      <Button
+        id="NPC"
+        class="p-button-sm p-button-help"
+        lable="NPC?"
+        v-tooltip.top="'Character is NPC? ' + String(npc)"
+        @click.stop="updateNPC"
+        ><ClickIcon></ClickIcon>
+      </Button>
     </div>
   </div>
   <div class="p-grid p-field">
@@ -67,7 +75,7 @@
     class="pi-button-primary"
     @click.prevent="
       (e) => {
-        addCharacter(e, data, roll);
+        addCharacter(e, data, roll, npc);
       }
     "
   />
@@ -79,7 +87,7 @@ import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
 import ClickIcon from "../../ClickIcon.vue";
-import { InitiativeObjectEnums } from "../../../interfaces/Enums";
+import { InitiativeObjectEnums } from "../../../Interfaces/Enums";
 
 export default defineComponent({
   name: "AddInitiative",
@@ -87,14 +95,14 @@ export default defineComponent({
   props: {
     addCharacter: { type: Function, required: true },
   },
-  setup(props) {
-    console.info("re-render");
+  setup() {
     let data = reactive({
       characterName: "",
       initiativeModifier: 0,
       initiative: 0,
     });
     let roll = ref(false);
+    let npc = ref(false);
 
     function handleChange(e: any, ObjectType: InitiativeObjectEnums) {
       switch (ObjectType) {
@@ -123,7 +131,29 @@ export default defineComponent({
         }
       }
     }
-    return { updateRollForMe, roll, data, InitiativeObjectEnums, handleChange };
+    function updateNPC() {
+      let NPCElement = document.getElementById("NPC");
+      if (NPCElement !== null) {
+        if (NPCElement.classList.contains("p-button-success")) {
+          NPCElement.classList.remove("p-button-success");
+          NPCElement.classList.add("p-button-help");
+          npc.value = false;
+        } else {
+          NPCElement.classList.add("p-button-success");
+          NPCElement.classList.remove("p-button-help");
+          npc.value = true;
+        }
+      }
+    }
+    return {
+      updateRollForMe,
+      roll,
+      data,
+      InitiativeObjectEnums,
+      handleChange,
+      npc,
+      updateNPC,
+    };
   },
 });
 </script>

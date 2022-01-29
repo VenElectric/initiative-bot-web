@@ -11,25 +11,18 @@
       <Button label="Clear Session" class="p-button p-button-info" />
     </template>
   </Toolbar>
-  <div>
-    <div class="p-grid">
-      <!-- Initiative List -->
-      <div class="p-col-6 p-md-4 p-p-5">
-        <h1>Initiative List</h1>
-        <InitiativeState></InitiativeState>
-      </div>
+
+  <div class="flex flex-row justify-content-evenly">
+    <!-- Initiative List -->
+    <div class="flex flex-column column-container">
+      <h1>Initiative List</h1>
+      <InitiativeState></InitiativeState>
     </div>
     <!-- Spell List -->
-    <div class="p-col-6 p-md-4 p-p-5">
-      <div>
-        <h1>Spell List</h1>
-      </div>
-    </div>
-    <!-- Spell Info -->
-    <div class="p-col-6 p-md-4 p-p-5">
-      <div>
-        <h1>Spell Info</h1>
-      </div>
+
+    <div class="flex flex-column column-container">
+      <h1>Spell List</h1>
+      <SpellState></SpellState>
     </div>
   </div>
 </template>
@@ -50,23 +43,30 @@ import InitiativeState from "../components/gamesession/initiative/InitiativeStat
 import Toolbar from "primevue/toolbar";
 import SplitButton from "primevue/splitbutton";
 import Button from "primevue/button";
+import InputEditor from "../components/InputEditor.vue";
+import { IStore } from "../data/types";
+import SpellState from "../components/gamesession/spells/SpellState.vue";
 
 // css to make columns instead of rows for each item (init, spell, info)
 export default defineComponent({
   name: "GameSession",
   components: {
-    InitiativeState,
     Toolbar,
     SplitButton,
     Button,
+    InitiativeState,
+    SpellState,
   },
   setup() {
     const route = useRoute();
     const socket = io("localhost:8000");
+    const store = inject<IStore>("store");
     provide("socket", socket);
     // const sessionId = String(route.params.id);
-    const sessionId = "731278337917452380";
-    provide("sessionId", sessionId);
+    let paramsId = "731278337917452380";
+    if (store) {
+      store.updateId(paramsId);
+    }
     let op = ref(null);
     const buttonItems = [
       {
@@ -77,23 +77,22 @@ export default defineComponent({
       },
     ];
 
-    function toggle(event: any) {
-      (op.value as any).toggle(event);
-    }
+    // onMounted(() => {
+    //   if (sessionId !== undefined) {
+    //     socket.emit("create", sessionId);
+    //   }
+    // });
 
-    onMounted(() => {
-      if (sessionId !== undefined) {
-        socket.emit("create", sessionId);
-      }
-    });
-
-    return { socket, sessionId, buttonItems, toggle, op };
+    return { buttonItems };
   },
 });
 </script>
 
 <style scoped>
-.init-container {
-  width: 70%;
+.column-container {
+  width: 30%;
+}
+.p-tooltip-text {
+  font-size: 0.8em;
 }
 </style>

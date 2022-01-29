@@ -6,12 +6,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { IStatus } from "@/src/interfaces/initiative";
+import { StatusEffect } from "../../../Interfaces/initiative";
 import Effect from "./Effect.vue";
 
 export default defineComponent({
   name: "EffectContainer",
   components: { Effect },
-  props: { statusEffects: Array as PropType<IStatus[]> },
+  props: { statusEffects: Array as PropType<StatusEffect[]> },
 });
 </script>
