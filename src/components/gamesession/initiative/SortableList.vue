@@ -1,7 +1,7 @@
 <template>
   <ul>
     <li
-      v-for="(item, index) in store?.store.initiativeList"
+      v-for="(item, index) in data.initiativeList"
       :key="item.id"
       @dragstart="(e:any) => store.startDrag(e, index)"
       @dragover="store.dragOver"
@@ -15,30 +15,55 @@
         </legend>
         <slot :item="item" :index="index"></slot>
       </fieldset>
+      <span style="width: 100% !important"
+        ><EffectContainer :statusEffects="item.statusEffects"></EffectContainer
+      ></span>
     </li>
   </ul>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, inject } from "vue";
+import { defineComponent, PropType, inject, watch, reactive } from "vue";
 import { InitiativeObject } from "../../../Interfaces/initiative";
 import { IStore, Character } from "../../../data/types";
 import Fieldset from "primevue/fieldset";
-
-interface TestObject {
-  id: string;
-  title: string;
-}
+import EffectContainer from "./EffectContainer.vue";
+import serverLogger from "../../../Utils/LoggingClass";
+import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
 export default defineComponent({
   name: "SortableList",
-  setup(props) {
+  components: { EffectContainer },
+  setup() {
     const store = inject<IStore>("store");
+    const data = reactive({ initiativeList: store?.store.initiativeList });
+    serverLogger(
+      LoggingTypes.debug,
+      `sortable list component created`,
+      ComponentEnums.SORTABLELIST
+    );
+    watch(
+      () => store?.store.initiativeList,
+      () => {
+        serverLogger(
+          LoggingTypes.debug,
+          `watch triggered`,
+          ComponentEnums.SORTABLELIST
+        );
+        data.initiativeList = store?.store.initiativeList;
+      },
+      { deep: true }
+    );
     if (store === undefined) {
-      throw new Error('Failed to inject "updateScore"');
+      serverLogger(
+        LoggingTypes.alert,
+        `Failed to inject store`,
+        ComponentEnums.SORTABLELIST
+      );
+      throw new Error("Failed to inject store");
     }
 
-    return { store };
+    return { store, data };
   },
 });
 </script>

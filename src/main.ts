@@ -8,10 +8,14 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import Tooltip from "primevue/tooltip";
 import store from "./data/store";
+import ConfirmationService from "primevue/confirmationservice";
+import ToastService from "primevue/toastservice";
 
 createApp(App)
   .provide("store", store)
   .directive("tooltip", Tooltip)
   .use(PrimeVue)
+  .use(ConfirmationService)
+  .use(ToastService)
   .use(router)
   .mount("#app");

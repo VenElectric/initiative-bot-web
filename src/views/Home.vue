@@ -1,21 +1,12 @@
 <template>
-  <div class="home">
-    <h2>Game Sessions</h2>
-    <h2>Characters</h2>
-  </div>
-  <GameSession></GameSession>
+  <div class="home">Under Construction.....</div>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
-import GameSession from "../views/GameSession.vue";
-import SortableList from "../components/gamesession/initiative/SortableList.vue";
 
 export default defineComponent({
   name: "Home",
-  components: {
-    GameSession,
-  },
   setup() {
     const data = reactive({
       items: [

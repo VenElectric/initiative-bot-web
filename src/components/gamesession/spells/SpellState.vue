@@ -9,7 +9,7 @@
           class="p-button-sm"
         />
         <OverlayPanel ref="op" :showCloseIcon="true" :dismissable="true">
-          <AddSpell :spellFunction="addSpell" />
+          <AddSpell :spellFunction="addSpell" :isUpdate="false" />
         </OverlayPanel>
       </template>
     </ToolBar>
@@ -30,14 +30,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, onMounted, reactive, Ref } from "vue";
+import { defineComponent, inject, ref, onMounted, reactive } from "vue";
 import AddSpell from "./AddSpell.vue";
 import { IStore } from "../../../data/types";
-import { CharacterStatus } from "../../../Interfaces/initiative";
 import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
 import ToolBar from "primevue/toolbar";
 import SpellRecord from "./SpellRecord.vue";
+import serverLogger from "../../../Utils/LoggingClass";
+import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
 export default defineComponent({
   name: "SpellList",
@@ -49,21 +50,39 @@ export default defineComponent({
     SpellRecord,
   },
   setup() {
+    interface CharacterInterface {
+      characterId: string;
+      characterName: string;
+    }
     const store = inject<IStore>("store");
     const loading = ref(true);
     const op = ref(null);
     const data = reactive({
-      characterIds: [] as characterInterface[],
+      characterIds: [] as CharacterInterface[],
     });
 
     if (store === undefined) {
+      serverLogger(
+        LoggingTypes.alert,
+        `Failed to inject store`,
+        ComponentEnums.SPELLSTATE
+      );
       throw new Error("Failed to inject store");
     }
     onMounted(() => {
       store.getInitialSpells();
+      serverLogger(
+        LoggingTypes.info,
+        `spells retrieved`,
+        ComponentEnums.SPELLSTATE
+      );
       setTimeout(() => {
         loading.value = false;
-        console.log(loading.value);
+        serverLogger(
+          LoggingTypes.info,
+          `adding characterids`,
+          ComponentEnums.SPELLSTATE
+        );
         for (let record of store.store.initiativeList) {
           data.characterIds.push({
             characterId: record.id,
@@ -73,18 +92,17 @@ export default defineComponent({
       }, 500);
     });
 
-    interface characterInterface {
-      characterId: string;
-      characterName: string;
-    }
-
     function toggle(event: any) {
       (op.value as any).toggle(event);
     }
 
     function addSpell(event: any, data: any) {
-      console.log(data);
       toggle(event);
+      serverLogger(
+        LoggingTypes.info,
+        `adding new spell`,
+        ComponentEnums.SPELLSTATE
+      );
       store?.addSpell(data);
     }
     return {

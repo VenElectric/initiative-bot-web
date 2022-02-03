@@ -38,6 +38,7 @@ export enum InitiativeObjectEnums {
   isCurrent = "isCurrent",
   statusEffects = "statusEffects",
   isNpc = "isNpc",
+  all = "all",
 }
 
 export enum SpellObjectEnums {
@@ -47,6 +48,7 @@ export enum SpellObjectEnums {
   effectDescription = "effectDescription",
   id = "id",
   characterIds = "characterIds",
+  all = "all",
 }
 
 export enum SessionFunctionEnums {

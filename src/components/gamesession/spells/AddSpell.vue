@@ -69,6 +69,17 @@
   <Button
     label="Save"
     class="pi-button-primary m-2"
+    v-if="!isUpdate"
+    @click.prevent="
+      (e) => {
+        spellFunction(e, data);
+      }
+    "
+  />
+  <Button
+    v-else
+    label="Save"
+    class="pi-button-primary m-2"
     @click.prevent="
       (e) => {
         spellFunction(e, data);
@@ -85,12 +96,15 @@ import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { SpellObject } from "@/src/Interfaces/initiative";
+import serverLogger from "../../../Utils/LoggingClass";
+import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
 export default defineComponent({
   name: "AddSpell",
   components: { Dropdown, InputNumber, InputText, Button },
   props: {
     spellFunction: { type: Function, required: true },
+    isUpdate: { type: Boolean, required: true },
     spell: { type: Object as PropType<SpellObject>, required: false },
     index: { type: Number, required: false },
   },
@@ -102,9 +116,6 @@ export default defineComponent({
       durationType: props.spell ? props.spell.durationType : "",
       index: props.index ? props.index : 0,
     });
-    if (props.index) {
-      console.info(props.index);
-    }
     const durationTypes = ref([
       { label: "Rounds", value: "Rounds" },
       { label: "Minutes", value: "Minutes" },
@@ -112,7 +123,20 @@ export default defineComponent({
       { label: "Days", value: "Days" },
     ]);
 
+    serverLogger(
+      LoggingTypes.info,
+      `created. isUpdate? ${props.isUpdate}`,
+      ComponentEnums.ADDSPELL,
+      props?.spell?.id
+    );
+
     function handleChange(e: any, ObjectType: SpellObjectEnums) {
+      serverLogger(
+        LoggingTypes.debug,
+        `updating ${ObjectType} value: ${e}`,
+        ComponentEnums.ADDSPELL,
+        props?.spell?.id
+      );
       switch (ObjectType) {
         case SpellObjectEnums.effectName:
           data.effectName = e;

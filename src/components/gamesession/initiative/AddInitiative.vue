@@ -88,6 +88,8 @@ import InputNumber from "primevue/inputnumber";
 import Button from "primevue/button";
 import ClickIcon from "../../ClickIcon.vue";
 import { InitiativeObjectEnums } from "../../../Interfaces/Enums";
+import serverLogger from "../../../Utils/LoggingClass";
+import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
 export default defineComponent({
   name: "AddInitiative",
@@ -105,6 +107,11 @@ export default defineComponent({
     let npc = ref(false);
 
     function handleChange(e: any, ObjectType: InitiativeObjectEnums) {
+      serverLogger(
+        LoggingTypes.debug,
+        `updating reactive object init ${ObjectType}`,
+        ComponentEnums.ADDINITIATIVE
+      );
       switch (ObjectType) {
         case InitiativeObjectEnums.characterName:
           data.characterName = e;
@@ -118,6 +125,11 @@ export default defineComponent({
       }
     }
     function updateRollForMe() {
+      serverLogger(
+        LoggingTypes.debug,
+        `changing updateroll for me ${roll.value}`,
+        ComponentEnums.ADDINITIATIVE
+      );
       let rollElement = document.getElementById("roll");
       if (rollElement !== null) {
         if (rollElement.classList.contains("p-button-success")) {
@@ -130,8 +142,18 @@ export default defineComponent({
           roll.value = true;
         }
       }
+      serverLogger(
+        LoggingTypes.debug,
+        `changing updateroll for me ${roll.value}`,
+        ComponentEnums.ADDINITIATIVE
+      );
     }
     function updateNPC() {
+      serverLogger(
+        LoggingTypes.debug,
+        `changing isNpc ${npc.value}`,
+        ComponentEnums.ADDINITIATIVE
+      );
       let NPCElement = document.getElementById("NPC");
       if (NPCElement !== null) {
         if (NPCElement.classList.contains("p-button-success")) {
@@ -144,6 +166,11 @@ export default defineComponent({
           npc.value = true;
         }
       }
+      serverLogger(
+        LoggingTypes.debug,
+        `changing isNpc ${npc.value}`,
+        ComponentEnums.ADDINITIATIVE
+      );
     }
     return {
       updateRollForMe,

@@ -34,7 +34,7 @@
             <template #sourceheader> Characters Not Affected </template>
             <template #targetheader> Affected Characters </template>
             <template #item="record">
-              {{ record.item.characterName }}
+              <div :key="record.index">{{ record.item.characterName }}</div>
             </template>
           </PickList>
         </OverlayPanel>
@@ -47,8 +47,21 @@
             :spellFunction="handleClose"
             :spell="spell"
             :index="index"
+            :isUpdate="true"
           ></AddSpell
         ></OverlayPanel>
+      </div>
+      <div>|</div>
+      <div>
+        <span
+          class="pi pi-trash p-mr-auto trash-icon"
+          @click.prevent="
+            (event) => {
+              event.stopPropagation();
+              store.removeSpell(index, spell.id, true);
+            }
+          "
+        ></span>
       </div>
     </div>
     <hr />
@@ -56,21 +69,15 @@
 </template>
 
 <script lang="ts">
-import { CharacterStatus, SpellObject } from "../../../Interfaces/initiative";
+import { SpellObject } from "../../../Interfaces/initiative";
 import { IStore } from "../../../data/types";
-import {
-  defineComponent,
-  ref,
-  PropType,
-  inject,
-  reactive,
-  onMounted,
-} from "vue";
-import Divider from "primevue/divider";
+import { defineComponent, ref, PropType, inject, watch } from "vue";
 import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
-import PickList, { PickListMoveAllToSourceEvent } from "primevue/picklist";
+import PickList from "primevue/picklist";
 import AddSpell from "./AddSpell.vue";
+import serverLogger from "../../../Utils/LoggingClass";
+import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
 export default defineComponent({
   name: "SpellRecord",
@@ -85,18 +92,32 @@ export default defineComponent({
     },
   },
   setup(props) {
-    console.info(props.index);
-    const multiRef = ref(null);
     const store = inject<IStore>("store");
     const spellModel = ref(props.spell.characterIds);
     const op = ref(null);
     const updateRef = ref(null);
 
-    console.log(props.spell);
-
     if (store === undefined) {
+      serverLogger(
+        LoggingTypes.alert,
+        `failed to inject store`,
+        ComponentEnums.SPELLRECORD
+      );
       throw new Error("Failed to inject store");
     }
+
+    watch(
+      () => props.spell.characterIds,
+      () => {
+        serverLogger(
+          LoggingTypes.debug,
+          `watch triggered: characterIds`,
+          ComponentEnums.SPELLRECORD
+        );
+        spellModel.value = props.spell.characterIds;
+      },
+      { deep: true }
+    );
 
     function toggle(event: any) {
       (op.value as any).toggle(event);
@@ -107,11 +128,23 @@ export default defineComponent({
     }
 
     function handleClose(event: any, data: any) {
+      serverLogger(
+        LoggingTypes.info,
+        `updating spell record`,
+        ComponentEnums.SPELLRECORD,
+        props.spell.id
+      );
       toggleUpdate(event);
-      store?.updateSpell(data);
+      store?.updateSpell(
+        data.effectName,
+        data.effectDescription,
+        data.durationTime,
+        data.durationType,
+        data.index,
+        true
+      );
     }
     return {
-      multiRef,
       store,
       spellModel,
       op,

@@ -1,9 +1,10 @@
 <template>
   <div id="nav">
-    <router-link to="/">Home</router-link> |
+    <!-- <router-link to="/">Home</router-link> |
     <router-link to="/monsterlist">Monster List</router-link>
     <router-link to="/characterlist">Character List</router-link>
     <router-link to="/gamesessions">Game Sessions</router-link>
+    <Toast></Toast> -->
   </div>
   <router-view />
 </template>

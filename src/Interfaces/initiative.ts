@@ -1,8 +1,12 @@
-import { InitiativeContextEnums, InitiativeObjectEnums } from "./ContextEnums";
 export interface StatusEffect {
   spellName: string;
   id: string;
   effectDescription: string;
+}
+
+export interface CharacterStatusFirestore {
+  target: CharacterStatus[];
+  source: CharacterStatus[];
 }
 
 export interface CharacterStatus {
@@ -10,6 +14,11 @@ export interface CharacterStatus {
   characterName: string;
 }
 
+export interface CharacterStatusDouble {
+  length: 2;
+  0: CharacterStatus[];
+  1: CharacterStatus[];
+}
 export interface InitiativeObject {
   id: string;
   characterName: string;
@@ -21,6 +30,8 @@ export interface InitiativeObject {
   isNpc: boolean;
 }
 
+export type InitiativeKeys = keyof InitiativeObject;
+
 export interface SpellObject {
   durationTime: number;
   durationType: string;
@@ -28,6 +39,15 @@ export interface SpellObject {
   effectDescription: string;
   id: string;
   characterIds: CharacterStatus[][];
+}
+
+export interface ServerSpellObject {
+  durationTime: number;
+  durationType: string;
+  effectName: string;
+  effectDescription: string;
+  id: string;
+  characterIds: CharacterStatusFirestore;
 }
 
 export interface SessionData {
