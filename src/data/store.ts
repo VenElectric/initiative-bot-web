@@ -53,9 +53,15 @@ const alltoFalse = (): void => {
     `setting isCurrent for all records to false`,
     StoreEnums.alltoFalse
   );
-  sessionData.initiativeList.forEach((item: InitiativeObject, index) => {
-    sessionData.initiativeList[index].isCurrent = false;
-  });
+  try {
+    sessionData.initiativeList.forEach((item: InitiativeObject, index) => {
+      sessionData.initiativeList[index].isCurrent = false;
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      serverLogger(LoggingTypes.alert, error.message, StoreEnums.alltoFalse);
+    }
+  }
 };
 
 const updateId = (id: string): void => {
@@ -146,16 +152,27 @@ const getInitialSpells = (): void => {
       collectionType: CollectionTypes.SPELLS,
     },
     (query: { spells: ServerSpellObject[] }) => {
-      query.spells.forEach((spell: ServerSpellObject) => {
-        sessionData.spells.push({
-          id: spell.id,
-          effectName: spell.effectName,
-          effectDescription: spell.effectDescription,
-          durationTime: spell.durationTime,
-          durationType: spell.durationType,
-          characterIds: spellsDoubleArray(spell.characterIds),
+      try {
+        query.spells.forEach((spell: ServerSpellObject) => {
+          sessionData.spells.push({
+            id: spell.id,
+            effectName: spell.effectName,
+            effectDescription: spell.effectDescription,
+            durationTime: spell.durationTime,
+            durationType: spell.durationType,
+            characterIds: spellsDoubleArray(spell.characterIds),
+          });
         });
-      });
+      } catch (error) {
+        if (error instanceof Error) {
+          serverLogger(
+            LoggingTypes.alert,
+            error.message,
+            StoreEnums.getInitialSpells
+          );
+        }
+      }
+
       serverLogger(
         LoggingTypes.info,
         `spell store updated`,
@@ -225,22 +242,32 @@ const updateCharacterItem = (
     StoreEnums.updateCharacterItem,
     docId
   );
-  switch (ObjectType) {
-    case InitiativeObjectEnums.characterName:
-      sessionData.initiativeList[index].characterName = toUpdate;
-      break;
-    case InitiativeObjectEnums.initiative:
-      sessionData.initiativeList[index].initiative = toUpdate;
-      break;
-    case InitiativeObjectEnums.initiativeModifier:
-      sessionData.initiativeList[index].initiativeModifier = toUpdate;
-      break;
-    case InitiativeObjectEnums.isCurrent:
-      sessionData.initiativeList[index].isCurrent = toUpdate;
-      break;
-    case InitiativeObjectEnums.roundOrder:
-      sessionData.initiativeList[index].roundOrder = toUpdate;
-      break;
+  try {
+    switch (ObjectType) {
+      case InitiativeObjectEnums.characterName:
+        sessionData.initiativeList[index].characterName = toUpdate;
+        break;
+      case InitiativeObjectEnums.initiative:
+        sessionData.initiativeList[index].initiative = toUpdate;
+        break;
+      case InitiativeObjectEnums.initiativeModifier:
+        sessionData.initiativeList[index].initiativeModifier = toUpdate;
+        break;
+      case InitiativeObjectEnums.isCurrent:
+        sessionData.initiativeList[index].isCurrent = toUpdate;
+        break;
+      case InitiativeObjectEnums.roundOrder:
+        sessionData.initiativeList[index].roundOrder = toUpdate;
+        break;
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      serverLogger(
+        LoggingTypes.alert,
+        error.message,
+        StoreEnums.updateCharacterItem
+      );
+    }
   }
 };
 
