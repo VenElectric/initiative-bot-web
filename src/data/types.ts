@@ -98,4 +98,6 @@ export interface IStore {
   reRoll: (index: number) => void;
   alltoFalse: () => void;
   updateSorted: (isSorted: boolean) => void;
+  resetSpells: (emit: boolean) => void;
+  resetInitiative: (emit: boolean) => void;
 }

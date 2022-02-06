@@ -70,8 +70,16 @@ const updateId = (id: string): void => {
 };
 
 const roomSetup = (): void => {
-  serverLogger(LoggingTypes.debug, `joining room`, StoreEnums.roomSetup);
-  sessionData.socket.emit("create", sessionData.sessionId);
+  try {
+    serverLogger(LoggingTypes.debug, `joining room`, StoreEnums.roomSetup);
+    sessionData.socket.emit("create", sessionData.sessionId);
+  } catch (error) {
+    serverLogger(
+      LoggingTypes.debug,
+      `unable to connect to socket io`,
+      StoreEnums.roomSetup
+    );
+  }
 };
 
 const updateSorted = (isSorted: boolean): void => {
@@ -94,6 +102,7 @@ const updateAll = (
   );
   if (collectionType === CollectionTypes.INITIATIVE) {
     if (isInitiativeObjectArray(data)) {
+      console.info("initiative");
       sessionData.initiativeList = data;
       serverLogger(
         LoggingTypes.info,
@@ -105,6 +114,7 @@ const updateAll = (
   }
   if (collectionType === CollectionTypes.SPELLS) {
     if (isSpellObjectArray(data)) {
+      console.info("spells???");
       serverLogger(
         LoggingTypes.info,
         `update complete ${collectionType}`,
@@ -122,11 +132,8 @@ const getInitial = (): void => {
     StoreEnums.getInitial
   );
   sessionData.socket.emit(
-    "GET_INITIAL",
-    {
-      sessionId: sessionData.sessionId,
-      collectionType: CollectionTypes.INITIATIVE,
-    },
+    EmitTypes.GET_INITIAL,
+    sessionData.sessionId,
     (query: any) => {
       sessionData.initiativeList = query.initiativeList;
       sessionData.isSorted = query.isSorted;
@@ -146,14 +153,18 @@ const getInitialSpells = (): void => {
     StoreEnums.getInitialSpells
   );
   sessionData.socket.emit(
-    "GET_SPELLS",
-    {
-      sessionId: sessionData.sessionId,
-      collectionType: CollectionTypes.SPELLS,
-    },
-    (query: { spells: ServerSpellObject[] }) => {
+    EmitTypes.GET_SPELLS,
+    sessionData.sessionId,
+    (spells: ServerSpellObject[]) => {
+      serverLogger(
+        LoggingTypes.debug,
+        `Length: ${spells.length} First ID: ${
+          spells[0] ? spells[0].id : "null"
+        }`,
+        StoreEnums.getInitialSpells
+      );
       try {
-        query.spells.forEach((spell: ServerSpellObject) => {
+        spells.forEach((spell: ServerSpellObject) => {
           sessionData.spells.push({
             id: spell.id,
             effectName: spell.effectName,
@@ -227,7 +238,7 @@ const updateCharacterItem = (
         StoreEnums.updateCharacterItem,
         docId
       );
-      sessionData.socket.emit(EmitTypes.UPDATE_ITEM, {
+      sessionData.socket.emit(EmitTypes.UPDATE_ITEM_INITIATIVE, {
         ObjectType: ObjectType,
         toUpdate: toUpdate,
         collectionType: CollectionTypes.INITIATIVE,
@@ -335,7 +346,7 @@ const addCharacter = (data: Character, roll: boolean, npc: boolean): void => {
       `emitting Spell List`,
       StoreEnums.addCharacter
     );
-    sessionData.socket.emit(EmitTypes.UPDATE_ALL, {
+    sessionData.socket.emit(EmitTypes.UPDATE_ALL_SPELL, {
       payload: sessionData.spells,
       sessionId: sessionData.sessionId,
       collectionType: CollectionTypes.SPELLS,
@@ -348,14 +359,14 @@ const addCharacter = (data: Character, roll: boolean, npc: boolean): void => {
     StoreEnums.addCharacter,
     characterId
   );
-  sessionData.socket.emit(EmitTypes.CREATE_NEW, {
-    payload: newData as InitiativeObject,
+  sessionData.socket.emit(EmitTypes.CREATE_NEW_INITIATIVE, {
+    payload: newData,
     sessionId: sessionData.sessionId,
     collectionType: CollectionTypes.INITIATIVE,
   } as SocketData);
 };
 
-const reRoll = (index: number) => {
+const reRoll = (index: number): void => {
   const modifier = sessionData.initiativeList[index].initiativeModifier;
   const newRoll = new DiceRoll(`d20+${String(modifier)}`);
   serverLogger(
@@ -419,11 +430,11 @@ const removeCharacter = (index: number, id: string, emit: boolean): void => {
     setTimeout(() => {
       serverLogger(
         LoggingTypes.debug,
-        `emitting ${EmitTypes.DELETE_ONE}`,
+        `emitting ${EmitTypes.DELETE_ONE_INITIATIVE}`,
         StoreEnums.removeCharacter,
         id
       );
-      sessionData.socket.emit(EmitTypes.DELETE_ONE, {
+      sessionData.socket.emit(EmitTypes.DELETE_ONE_INITIATIVE, {
         payload: [],
         sessionId: sessionData.sessionId,
         collectionType: CollectionTypes.INITIATIVE,
@@ -431,11 +442,11 @@ const removeCharacter = (index: number, id: string, emit: boolean): void => {
       } as SocketData);
       serverLogger(
         LoggingTypes.debug,
-        `emitting ${EmitTypes.UPDATE_ALL} for spells`,
+        `emitting ${EmitTypes.UPDATE_ALL_SPELL} for spells`,
         StoreEnums.removeCharacter,
         id
       );
-      sessionData.socket.emit(EmitTypes.UPDATE_ALL, {
+      sessionData.socket.emit(EmitTypes.UPDATE_ALL_SPELL, {
         payload: sessionData.spells,
         sessionId: sessionData.sessionId,
         collectionType: CollectionTypes.SPELLS,
@@ -464,13 +475,7 @@ const removeSpell = (index: number, id: string, emit: boolean): void => {
     if (emit) {
       serverLogger(
         LoggingTypes.debug,
-        `removing status effects from all characters this spell`,
-        StoreEnums.removeSpell,
-        id
-      );
-      serverLogger(
-        LoggingTypes.debug,
-        `emitting ${EmitTypes.UPDATE_ALL} for initiative`,
+        `emitting ${EmitTypes.UPDATE_ALL_INITIATIVE} for initiative`,
         StoreEnums.removeSpell
       );
       serverLogger(
@@ -478,7 +483,7 @@ const removeSpell = (index: number, id: string, emit: boolean): void => {
         `isSorted is: ${sessionData.isSorted}`,
         StoreEnums.removeSpell
       );
-      sessionData.socket.emit(EmitTypes.UPDATE_ALL, {
+      sessionData.socket.emit(EmitTypes.UPDATE_ALL_INITIATIVE, {
         payload: sessionData.initiativeList,
         sessionId: sessionData.sessionId,
         collectionType: CollectionTypes.INITIATIVE,
@@ -487,11 +492,11 @@ const removeSpell = (index: number, id: string, emit: boolean): void => {
       });
       serverLogger(
         LoggingTypes.debug,
-        `emitting ${EmitTypes.DELETE_ONE} for spell`,
+        `emitting ${EmitTypes.DELETE_ONE_SPELL} for spell`,
         StoreEnums.removeSpell,
         id
       );
-      sessionData.socket.emit(EmitTypes.DELETE_ONE, {
+      sessionData.socket.emit(EmitTypes.DELETE_ONE_SPELL, {
         payload: [],
         sessionId: sessionData.sessionId,
         collectionType: CollectionTypes.SPELLS,
@@ -532,13 +537,13 @@ const addSpell = (data: any): void => {
   sessionData.spells.push(newData);
   serverLogger(
     LoggingTypes.debug,
-    `spell added to store, emitting ${EmitTypes.CREATE_NEW}`,
+    `spell added to store, emitting ${EmitTypes.CREATE_NEW_SPELL}`,
     StoreEnums.addSpell,
     id
   );
 
-  sessionData.socket.emit(EmitTypes.CREATE_NEW, {
-    payload: newData as SpellObject,
+  sessionData.socket.emit(EmitTypes.CREATE_NEW_SPELL, {
+    payload: newData,
     sessionId: sessionData.sessionId,
     collectionType: CollectionTypes.SPELLS,
   } as SocketData);
@@ -569,7 +574,7 @@ const updateSpell = (
   if (emit) {
     serverLogger(
       LoggingTypes.debug,
-      `emitting ${EmitTypes.CREATE_NEW} for new spell`,
+      `emitting ${EmitTypes.UPDATE_RECORD_SPELL}`,
       StoreEnums.updateSpell,
       sessionData.spells[index].id
     );
@@ -577,9 +582,8 @@ const updateSpell = (
       payload: sessionData.spells[index],
       collectionType: CollectionTypes.SPELLS,
       sessionId: sessionData.sessionId,
-      docId: sessionData.spells[index].id,
     };
-    sessionData.socket.emit(EmitTypes.UPDATE_RECORD, options);
+    sessionData.socket.emit(EmitTypes.UPDATE_RECORD_SPELL, options);
   }
 };
 
@@ -647,10 +651,10 @@ const onDrop = (evt: DragEvent, index: number): void => {
       setTimeout(() => {
         serverLogger(
           LoggingTypes.debug,
-          `emitting ${EmitTypes.UPDATE_ALL} after drop completion`,
+          `emitting ${EmitTypes.UPDATE_ALL_INITIATIVE} after drop completion`,
           StoreEnums.onDrop
         );
-        sessionData.socket.emit(EmitTypes.UPDATE_ALL, {
+        sessionData.socket.emit(EmitTypes.UPDATE_ALL_INITIATIVE, {
           payload: sessionData.initiativeList,
           sessionId: sessionData.sessionId,
           collectionType: CollectionTypes.INITIATIVE,
@@ -769,12 +773,12 @@ const changeAllCharacterStatus = (index: number, moveTo: string): void => {
     }
     serverLogger(
       LoggingTypes.debug,
-      `emitting ${EmitTypes.UPDATE_ALL} for spells`,
+      `emitting ${EmitTypes.UPDATE_ALL_SPELL} for spells`,
       StoreEnums.changeAllCharacterStatus,
       sessionData.spells[index].id
     );
     sessionData.socket.emit(
-      EmitTypes.UPDATE_ALL,
+      EmitTypes.UPDATE_ALL_SPELL,
       {
         payload: sessionData.spells,
         sessionId: sessionData.sessionId,
@@ -787,12 +791,12 @@ const changeAllCharacterStatus = (index: number, moveTo: string): void => {
     );
     serverLogger(
       LoggingTypes.debug,
-      `emitting ${EmitTypes.UPDATE_ALL} for initiative`,
+      `emitting ${EmitTypes.UPDATE_ALL_INITIATIVE} for initiative`,
       StoreEnums.changeAllCharacterStatus,
       sessionData.spells[index].id
     );
     sessionData.socket.emit(
-      EmitTypes.UPDATE_ALL,
+      EmitTypes.UPDATE_ALL_INITIATIVE,
       {
         payload: sessionData.initiativeList,
         sessionId: sessionData.sessionId,
@@ -874,40 +878,28 @@ const changeOneCharacterStatus = (
     }
     serverLogger(
       LoggingTypes.info,
-      `emitting ${EmitTypes.UPDATE_RECORD} for spell`,
+      `emitting ${EmitTypes.UPDATE_RECORD_SPELL} for spell`,
       StoreEnums.changeOneCharacterStatus,
       sessionData.spells[index].id
     );
-    sessionData.socket.emit(
-      EmitTypes.UPDATE_RECORD,
-      {
-        payload: sessionData.spells[index],
-        sessionId: sessionData.sessionId,
-        collectionType: CollectionTypes.SPELLS,
-        docId: sessionData.spells[index].id,
-      },
-      (data: any) => {
-        console.log(data, "response from function");
-      }
-    );
+    sessionData.socket.emit(EmitTypes.UPDATE_RECORD_SPELL, {
+      payload: sessionData.spells[index],
+      sessionId: sessionData.sessionId,
+      collectionType: CollectionTypes.SPELLS,
+      docId: sessionData.spells[index].id,
+    });
     serverLogger(
       LoggingTypes.info,
-      `emitting ${EmitTypes.UPDATE_RECORD} for initiative`,
+      `emitting ${EmitTypes.UPDATE_RECORD_INITIATIVE} for initiative`,
       StoreEnums.changeOneCharacterStatus,
       characterId
     );
-    sessionData.socket.emit(
-      EmitTypes.UPDATE_RECORD,
-      {
-        payload: sessionData.initiativeList[characterIndex],
-        sessionId: sessionData.sessionId,
-        collectionType: CollectionTypes.INITIATIVE,
-        docId: characterId,
-      },
-      (data: any) => {
-        console.log(data, "respose from function");
-      }
-    );
+    sessionData.socket.emit(EmitTypes.UPDATE_RECORD_INITIATIVE, {
+      payload: sessionData.initiativeList[characterIndex],
+      sessionId: sessionData.sessionId,
+      collectionType: CollectionTypes.INITIATIVE,
+      docId: characterId,
+    });
   } catch (error) {
     if (error instanceof Error) {
       serverLogger(
@@ -928,13 +920,9 @@ const roundStart = (): void => {
   );
   sessionData.socket.emit(
     EmitTypes.ROUND_START,
-    {
-      payload: [],
-      sessionId: sessionData.sessionId,
-      collectionType: CollectionTypes.INITIATIVE,
-      docId: "",
-    },
+    sessionData.sessionId,
     (data: InitiativeObject[]) => {
+      console.info(data);
       sessionData.initiativeList = data;
       sessionData.isSorted = true;
       serverLogger(
@@ -954,12 +942,7 @@ const reSort = (): void => {
   );
   sessionData.socket.emit(
     EmitTypes.RESORT,
-    {
-      payload: [],
-      sessionId: sessionData.sessionId,
-      collectionType: CollectionTypes.INITIATIVE,
-      docId: "",
-    },
+    sessionData.sessionId,
     (data: InitiativeObject[]) => {
       sessionData.initiativeList = data;
       console.info(sessionData.initiativeList);
@@ -995,11 +978,11 @@ const setCurrent = (index: number): void => {
   sessionData.initiativeList[index].isCurrent = true;
   serverLogger(
     LoggingTypes.info,
-    `reset complete. update to initiative record complete. emitting ${EmitTypes.UPDATE_ALL}`,
+    `reset complete. update to initiative record complete. emitting ${EmitTypes.UPDATE_ALL_INITIATIVE}`,
     StoreEnums.setCurrent,
     sessionData.initiativeList[index].id
   );
-  sessionData.socket.emit(EmitTypes.UPDATE_ALL, {
+  sessionData.socket.emit(EmitTypes.UPDATE_ALL_INITIATIVE, {
     payload: sessionData.initiativeList,
     collectionType: CollectionTypes.INITIATIVE,
     sessionId: sessionData.sessionId,
@@ -1014,11 +997,7 @@ const nextTurn = (): void => {
     `emitting ${EmitTypes.NEXT}`,
     StoreEnums.nextTurn
   );
-  sessionData.socket.emit(EmitTypes.NEXT, {
-    payload: [],
-    sessionId: sessionData.sessionId,
-    collectionType: CollectionTypes.INITIATIVE,
-  });
+  sessionData.socket.emit(EmitTypes.NEXT, sessionData.sessionId);
 };
 
 const previousTurn = (): void => {
@@ -1027,11 +1006,7 @@ const previousTurn = (): void => {
     `emitting ${EmitTypes.PREVIOUS}`,
     StoreEnums.nextTurn
   );
-  sessionData.socket.emit(EmitTypes.PREVIOUS, {
-    payload: [],
-    sessionId: sessionData.sessionId,
-    collectionType: CollectionTypes.INITIATIVE,
-  });
+  sessionData.socket.emit(EmitTypes.PREVIOUS, sessionData.sessionId);
 };
 
 const toDiscord = (collectionType: CollectionTypes): void => {
@@ -1054,20 +1029,43 @@ const toDiscord = (collectionType: CollectionTypes): void => {
 };
 
 const resetAll = (emit: boolean): void => {
-  sessionData.initiativeList = [];
-  sessionData.spells = [];
+  sessionData.isSorted = false;
+  resetInitiative(emit);
+  resetSpells(emit);
   serverLogger(
     LoggingTypes.info,
     `initiative and spells reset`,
     StoreEnums.resetAll
   );
+};
+
+const resetInitiative = (emit: boolean): void => {
+  sessionData.isSorted = false;
+  sessionData.initiativeList = [];
+  serverLogger(LoggingTypes.info, `spells reset`, StoreEnums.resetAll);
   if (emit) {
     serverLogger(
       LoggingTypes.info,
-      `emitting ${EmitTypes.DELETE_ALL}`,
+      `emitting ${EmitTypes.DELETE_ALL_INITIATIVE}`,
       StoreEnums.resetAll
     );
-    sessionData.socket.emit(EmitTypes.DELETE_ALL, sessionData.sessionId);
+    sessionData.socket.emit(
+      EmitTypes.DELETE_ALL_INITIATIVE,
+      sessionData.sessionId
+    );
+  }
+};
+
+const resetSpells = (emit: boolean): void => {
+  sessionData.spells = [];
+  serverLogger(LoggingTypes.info, `spells reset`, StoreEnums.resetAll);
+  if (emit) {
+    serverLogger(
+      LoggingTypes.info,
+      `emitting ${EmitTypes.DELETE_ALL_SPELL}`,
+      StoreEnums.resetAll
+    );
+    sessionData.socket.emit(EmitTypes.DELETE_ALL_SPELL, sessionData.sessionId);
   }
 };
 
@@ -1106,4 +1104,6 @@ export default {
   reRoll,
   alltoFalse,
   updateSorted,
+  resetInitiative,
+  resetSpells,
 };

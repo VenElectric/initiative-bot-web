@@ -1,6 +1,16 @@
 <template>
   <div v-if="!loading">
+    <Toast />
+    <ConfirmPopup></ConfirmPopup>
     <ToolBar>
+      <template #start>
+        <Button
+          type="button"
+          label="Clear Spells"
+          @click="(e) => confirm1(e)"
+          class="p-button-sm"
+        />
+      </template>
       <template #end>
         <Button
           type="button"
@@ -39,6 +49,10 @@ import ToolBar from "primevue/toolbar";
 import SpellRecord from "./SpellRecord.vue";
 import serverLogger from "../../../Utils/LoggingClass";
 import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmPopup from "primevue/confirmpopup";
+import Toast from "primevue/toast";
 
 export default defineComponent({
   name: "SpellList",
@@ -48,6 +62,8 @@ export default defineComponent({
     OverlayPanel,
     ToolBar,
     SpellRecord,
+    Toast,
+    ConfirmPopup,
   },
   setup() {
     interface CharacterInterface {
@@ -60,6 +76,8 @@ export default defineComponent({
     const data = reactive({
       characterIds: [] as CharacterInterface[],
     });
+    const confirm = useConfirm();
+    const toast = useToast();
 
     if (store === undefined) {
       serverLogger(
@@ -105,6 +123,41 @@ export default defineComponent({
       );
       store?.addSpell(data);
     }
+
+    const confirm1 = (event: any) => {
+      confirm.require({
+        target: event.currentTarget,
+        message: "Are you sure you want to proceed?",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          serverLogger(
+            LoggingTypes.debug,
+            `Adding toast and resetting spells`,
+            ComponentEnums.SPELLSTATE
+          );
+          store.resetSpells(true);
+          toast.add({
+            severity: "info",
+            summary: "Confirmed",
+            detail: "Spell Reset Accepted",
+            life: 3000,
+          });
+        },
+        reject: () => {
+          serverLogger(
+            LoggingTypes.debug,
+            `Adding toast, rejected confirmation to reset spells`,
+            ComponentEnums.SPELLSTATE
+          );
+          toast.add({
+            severity: "error",
+            summary: "Rejected",
+            detail: "Spells Not Reset",
+            life: 3000,
+          });
+        },
+      });
+    };
     return {
       store,
       loading,
@@ -112,6 +165,7 @@ export default defineComponent({
       toggle,
       addSpell,
       data,
+      confirm1,
     };
   },
 });

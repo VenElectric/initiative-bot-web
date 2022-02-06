@@ -4,14 +4,6 @@
     <template #start>
       <Toast />
       <ConfirmPopup></ConfirmPopup>
-      <!-- <ConfirmPopup group="demo">
-        <template #message="slotProps">
-          <div class="flex p-4">
-            <em :class="slotProps.message.icon" style="font-size: 1.5rem"></em>
-            <p class="pl-2">{{ slotProps.message.message }}</p>
-          </div>
-        </template>
-      </ConfirmPopup> -->
       <Button
         label="Discord: Spells"
         class="p-button p-button-info"
@@ -88,8 +80,9 @@ export default defineComponent({
     const confirm = useConfirm();
     const toast = useToast();
     const paramsId = String(route.params.id);
+    console.info(paramsId);
     // let paramsId = "731278337917452380";
-    if (store) {
+    if (store && paramsId) {
       store.updateId(paramsId);
       serverLogger(
         LoggingTypes.debug,
@@ -173,12 +166,14 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      store.roomSetup();
-      serverLogger(
-        LoggingTypes.info,
-        `Onmounted, sending emit to create room`,
-        ComponentEnums.GAMESESSION
-      );
+      if (paramsId !== undefined) {
+        store.roomSetup();
+        serverLogger(
+          LoggingTypes.info,
+          `Onmounted, sending emit to create room`,
+          ComponentEnums.GAMESESSION
+        );
+      }
     });
 
     return {

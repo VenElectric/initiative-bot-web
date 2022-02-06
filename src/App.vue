@@ -6,6 +6,9 @@
     <router-link to="/gamesessions">Game Sessions</router-link>
     <Toast></Toast> -->
   </div>
+  <div className="flex flex-column justify-content-center align-items-center">
+    <span className="p-fieldset text-5xl p-4 mb-6 shadow-8">Dungeon Bot</span>
+  </div>
   <router-view />
 </template>
 
@@ -28,7 +31,7 @@ export default defineComponent({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 #nav {
@@ -42,5 +45,8 @@ export default defineComponent({
       color: #42b983;
     }
   }
+}
+body {
+  background-color: rgb(18, 4, 41);
 }
 </style>

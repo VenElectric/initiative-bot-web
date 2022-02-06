@@ -30,6 +30,13 @@
           </div>
         </template>
         <template #end>
+          <ConfirmPopup></ConfirmPopup>
+          <Button
+            type="button"
+            label="Clear Initiative"
+            @click="(e) => confirm1(e)"
+            class="p-button-sm"
+          />
           <Button
             type="button"
             label="Add Initiative"
@@ -70,8 +77,10 @@ import Button from "primevue/button";
 import Skeleton from "primevue/skeleton";
 import { IStore, Character } from "../../../data/types";
 import SortableList from "./SortableList.vue";
-import Toast from "primevue/toast";
+import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+import ConfirmPopup from "primevue/confirmpopup";
+import Toast from "primevue/toast";
 import serverLogger from "../../../Utils/LoggingClass";
 import { LoggingTypes, ComponentEnums } from "../../../Interfaces/LoggingTypes";
 
@@ -86,12 +95,14 @@ export default defineComponent({
     SortableList,
     InitiativeRecordHeader,
     Toast,
+    ConfirmPopup,
   },
   setup() {
     const store = inject<IStore>("store");
     const loading = ref(true);
     const isSorted = ref();
     const toast = useToast();
+    const confirm = useConfirm();
     let op = ref(null);
     if (store === undefined) {
       serverLogger(
@@ -173,12 +184,48 @@ export default defineComponent({
         }
       }
     }
+
+    const confirm1 = (event: any) => {
+      confirm.require({
+        target: event.currentTarget,
+        message: "Are you sure you want to proceed?",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          serverLogger(
+            LoggingTypes.debug,
+            `Adding toast and resetting initiative`,
+            ComponentEnums.INITIATIVESTATE
+          );
+          store.resetInitiative(true);
+          toast.add({
+            severity: "info",
+            summary: "Confirmed",
+            detail: "Initiative Reset Accepted",
+            life: 3000,
+          });
+        },
+        reject: () => {
+          serverLogger(
+            LoggingTypes.debug,
+            `Adding toast, rejected confirmation to reset initiative`,
+            ComponentEnums.INITIATIVESTATE
+          );
+          toast.add({
+            severity: "error",
+            summary: "Rejected",
+            detail: "Initiative Not Reset",
+            life: 3000,
+          });
+        },
+      });
+    };
     return {
       loading,
       store,
       toggle,
       op,
       addCharacter,
+      confirm1,
     };
   },
 });

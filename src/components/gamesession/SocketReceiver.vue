@@ -70,29 +70,6 @@ export default defineComponent({
       ComponentEnums.SOCKETRECEIVER
     );
 
-    type ReceiveDataArray = {
-      collectionType: CollectionTypes;
-      payload: InitiativeObject[] | ServerSpellObject[];
-      isSorted?: boolean;
-    };
-
-    type ReceiveDataObject = {
-      collectionType: CollectionTypes;
-      payload: InitiativeObject | SpellObject | ServerSpellObject;
-    };
-    type UpdateItemObject = {
-      collectionType: CollectionTypes;
-      payload: {
-        toUpdate: any;
-        ObjectType: SpellObjectEnums | InitiativeObjectEnums;
-        docId: string;
-      };
-    };
-    type DeleteOneObject = {
-      collectionType: CollectionTypes;
-      id: string;
-    };
-
     if (store === undefined) {
       serverLogger(
         LoggingTypes.alert,
@@ -125,71 +102,404 @@ export default defineComponent({
           }
         }
       });
-      socket?.on(EmitTypes.CREATE_NEW, (data: ReceiveDataObject) => {
+      socket?.on(EmitTypes.CREATE_NEW_INITIATIVE, (data: InitiativeObject) => {
         serverLogger(
           LoggingTypes.info,
-          `${EmitTypes.CREATE_NEW} Adding ${data.collectionType}`,
+          `${EmitTypes.CREATE_NEW_INITIATIVE} Adding initiative`,
           ComponentEnums.SOCKETRECEIVER,
-          data.payload.id
+          data.id
         );
-        if (data.collectionType === CollectionTypes.SPELLS) {
-          if (isServerSpellObject(data.payload)) {
+        serverLogger(
+          LoggingTypes.debug,
+          `${EmitTypes.CREATE_NEW_INITIATIVE} creating initiative object`,
+          ComponentEnums.SOCKETRECEIVER,
+          data.id
+        );
+        if (store.store.isSorted) {
+          toast.add({
+            severity: "warn",
+            summary: "Warning Message",
+            detail:
+              "Initiative has been reset. Please click Round Start to resort.",
+            life: 3000,
+          });
+        }
+        serverLogger(
+          LoggingTypes.info,
+          `${EmitTypes.CREATE_NEW_INITIATIVE} toast added`,
+          ComponentEnums.SOCKETRECEIVER,
+          data.id
+        );
+        if (isInitiativeObject(data)) {
+          serverLogger(
+            LoggingTypes.debug,
+            `${EmitTypes.CREATE_NEW_INITIATIVE} changing isCurrent to false for all initiative`,
+            ComponentEnums.SOCKETRECEIVER,
+            data.id
+          );
+          try {
+            store.alltoFalse();
+            store.store.initiativeList.push(data);
             serverLogger(
               LoggingTypes.debug,
-              `${EmitTypes.CREATE_NEW} creating spell object`,
+              `${EmitTypes.CREATE_NEW_INITIATIVE} added initiative to list`,
               ComponentEnums.SOCKETRECEIVER,
-              data.payload.id
+              data.id
             );
-            try {
-              const serverObject: SpellObject = {
-                effectName: data.payload.effectName,
-                effectDescription: data.payload.effectDescription,
-                id: data.payload.id,
-                durationTime: data.payload.durationTime,
-                durationType: data.payload.durationType,
-                characterIds: [],
-              };
+          } catch (error) {
+            if (error instanceof Error) {
               serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.CREATE_NEW} changing characterids to double array`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.CREATE_NEW_INITIATIVE}`,
+                ComponentEnums.SOCKETRECEIVER
               );
-              serverObject.characterIds = store.spellsDoubleArray(
-                data.payload.characterIds
-              );
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.CREATE_NEW} adding spell object to store`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              store.store.spells.push(serverObject);
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.CREATE_NEW} spell object added`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              return;
-            } catch (error) {
-              if (error instanceof Error) {
-                serverLogger(
-                  LoggingTypes.alert,
-                  `${error.message} at ${EmitTypes.CREATE_NEW}`,
-                  ComponentEnums.SOCKETRECEIVER
-                );
-              }
             }
           }
         }
-        if (data.collectionType === CollectionTypes.INITIATIVE) {
+      });
+      socket?.on(EmitTypes.CREATE_NEW_SPELL, (data: ServerSpellObject) => {
+        if (isServerSpellObject(data)) {
           serverLogger(
             LoggingTypes.debug,
-            `${EmitTypes.CREATE_NEW} creating initiative object`,
+            `${EmitTypes.CREATE_NEW_SPELL} creating spell object`,
             ComponentEnums.SOCKETRECEIVER,
-            data.payload.id
+            data.id
           );
+          try {
+            const serverObject: SpellObject = {
+              effectName: data.effectName,
+              effectDescription: data.effectDescription,
+              id: data.id,
+              durationTime: data.durationTime,
+              durationType: data.durationType,
+              characterIds: [],
+            };
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.CREATE_NEW_SPELL} changing characterids to double array`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            serverObject.characterIds = store.spellsDoubleArray(
+              data.characterIds
+            );
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.CREATE_NEW_SPELL} adding spell object to store`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            store.store.spells.push(serverObject);
+            serverLogger(
+              LoggingTypes.info,
+              `${EmitTypes.CREATE_NEW_SPELL} spell object added`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            return;
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.CREATE_NEW_SPELL}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      });
+      socket?.on(
+        EmitTypes.UPDATE_ALL_INITIATIVE,
+        (data: { payload: InitiativeObject[]; isSorted: boolean }) => {
+          if (data.payload.length < 1) {
+            return;
+          }
+          serverLogger(
+            LoggingTypes.info,
+            `${EmitTypes.UPDATE_ALL_INITIATIVE} updating all initiative`,
+            ComponentEnums.SOCKETRECEIVER,
+            data.payload[0].id
+          );
+          try {
+            if (isInitiativeObjectArray(data)) {
+              store.updateAll(CollectionTypes.INITIATIVE, data.payload);
+              serverLogger(
+                LoggingTypes.info,
+                `${EmitTypes.UPDATE_ALL_INITIATIVE} update complete`,
+                ComponentEnums.SOCKETRECEIVER,
+                data.payload[0].id
+              );
+            }
+            if (data.isSorted !== undefined) {
+              serverLogger(
+                LoggingTypes.info,
+                `${EmitTypes.UPDATE_ALL_INITIATIVE} updating isSorted`,
+                ComponentEnums.SOCKETRECEIVER,
+                data.payload[0].id
+              );
+              serverLogger(
+                LoggingTypes.info,
+                `${EmitTypes.UPDATE_ALL_INITIATIVE} store.isSorted ${store.store.isSorted}`,
+                ComponentEnums.SOCKETRECEIVER,
+                data.payload[0].id
+              );
+              store.updateSorted(data.isSorted);
+              serverLogger(
+                LoggingTypes.info,
+                `${EmitTypes.UPDATE_ALL_INITIATIVE} isSorted updated: ${data.isSorted}`,
+                ComponentEnums.SOCKETRECEIVER,
+                data.payload[0].id
+              );
+              return;
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.UPDATE_ALL_INITIATIVE}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      );
+      socket?.on(EmitTypes.UPDATE_ALL_SPELL, (data: ServerSpellObject[]) => {
+        if (data.length < 1) {
+          return;
+        }
+        if (isServerObjectArray(data)) {
+          serverLogger(
+            LoggingTypes.debug,
+            `${EmitTypes.UPDATE_ALL_SPELL} creating spell object`,
+            ComponentEnums.SOCKETRECEIVER,
+            data[0].id
+          );
+          try {
+            let spellsArray = [] as SpellObject[];
+            data.forEach((item: ServerSpellObject, index) => {
+              let characterIds = store.spellsDoubleArray(item.characterIds);
+              spellsArray.push({
+                effectName: item.effectName,
+                effectDescription: item.effectDescription,
+                characterIds: characterIds,
+                id: item.id,
+                durationTime: item.durationTime,
+                durationType: item.durationType,
+              });
+              serverLogger(
+                LoggingTypes.debug,
+                `${EmitTypes.UPDATE_ALL_SPELL} spell object added`,
+                ComponentEnums.SOCKETRECEIVER,
+                item.id
+              );
+            });
+            store.updateAll(CollectionTypes.SPELLS, spellsArray);
+            serverLogger(
+              LoggingTypes.info,
+              `${EmitTypes.UPDATE_ALL_SPELL} update complete`,
+              ComponentEnums.SOCKETRECEIVER,
+              data[0].id
+            );
+            return;
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.UPDATE_ALL_SPELL}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      });
+      socket?.on(
+        EmitTypes.UPDATE_RECORD_INITIATIVE,
+        (data: InitiativeObject) => {
+          serverLogger(
+            LoggingTypes.info,
+            `${EmitTypes.UPDATE_RECORD_INITIATIVE} updating`,
+            ComponentEnums.SOCKETRECEIVER,
+            data.id
+          );
+          try {
+            if (isInitiativeObject(data)) {
+              serverLogger(
+                LoggingTypes.debug,
+                `${EmitTypes.UPDATE_RECORD_INITIATIVE} updating initiative`,
+                ComponentEnums.SOCKETRECEIVER,
+                data.id
+              );
+              store.updateCharacterRecord(data, false);
+              serverLogger(
+                LoggingTypes.debug,
+                `${EmitTypes.UPDATE_RECORD_INITIATIVE}  update complete`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+              return;
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.UPDATE_RECORD_INITIATIVE}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      );
+      socket?.on(EmitTypes.UPDATE_RECORD_SPELL, (data: SpellObject) => {
+        try {
+          if (isServerSpellObject(data)) {
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.UPDATE_RECORD_SPELL} creating spell object`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            const characterIds = store.spellsDoubleArray(data.characterIds);
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.UPDATE_RECORD_SPELL} characterIds complete`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.UPDATE_RECORD_SPELL} updating spells`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+            const spellIndex = store.store.spells
+              .map((spell: SpellObject) => spell.id)
+              .indexOf(data.id);
+            store.updateSpell(
+              data.effectName,
+              data.effectDescription,
+              data.durationTime,
+              data.durationType,
+              spellIndex,
+              false,
+              characterIds
+            );
+            serverLogger(
+              LoggingTypes.info,
+              `${EmitTypes.UPDATE_RECORD_SPELL} update complete`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.id
+            );
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            serverLogger(
+              LoggingTypes.alert,
+              `${error.message} at ${EmitTypes.UPDATE_RECORD_SPELL}`,
+              ComponentEnums.SOCKETRECEIVER
+            );
+          }
+        }
+      });
+      socket?.on(
+        EmitTypes.UPDATE_ITEM_INITIATIVE,
+        (data: {
+          toUpdate: any;
+          ObjectType: InitiativeObjectEnums;
+          docId: string;
+        }) => {
+          serverLogger(
+            LoggingTypes.info,
+            `${EmitTypes.UPDATE_ITEM_INITIATIVE} updating`,
+            ComponentEnums.SOCKETRECEIVER,
+            data.docId
+          );
+          try {
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.UPDATE_ITEM_INITIATIVE} item to update: ${data.ObjectType} value: ${data.toUpdate}`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.docId
+            );
+            const initIndex = store.store.initiativeList
+              .map((record: InitiativeObject) => record.id)
+              .indexOf(data.docId);
+            store.updateCharacterItem(
+              data.ObjectType,
+              data.toUpdate,
+              initIndex,
+              false
+            );
+            serverLogger(
+              LoggingTypes.info,
+              `${EmitTypes.UPDATE_ITEM_INITIATIVE} update complete`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.docId
+            );
+            return;
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.UPDATE_ITEM_INITIATIVE}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      );
+      socket?.on(
+        EmitTypes.UPDATE_ITEM_SPELL,
+        (data: {
+          toUpdate: any;
+          ObjectType: SpellObjectEnums;
+          docId: string;
+        }) => {
+          try {
+            serverLogger(
+              LoggingTypes.debug,
+              `${EmitTypes.UPDATE_ITEM_SPELL} item to update: ${data.ObjectType} value: ${data.toUpdate}`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.docId
+            );
+            const spellIndex = store.store.spells
+              .map((spell: SpellObject) => spell.id)
+              .indexOf(data.docId);
+            store.updateSpellItem(data.ObjectType, data.toUpdate, spellIndex);
+            serverLogger(
+              LoggingTypes.info,
+              `${EmitTypes.UPDATE_ITEM_SPELL} update complete`,
+              ComponentEnums.SOCKETRECEIVER,
+              data.docId
+            );
+          } catch (error) {
+            if (error instanceof Error) {
+              serverLogger(
+                LoggingTypes.alert,
+                `${error.message} at ${EmitTypes.UPDATE_ITEM_SPELL}`,
+                ComponentEnums.SOCKETRECEIVER
+              );
+            }
+          }
+        }
+      );
+      socket?.on(EmitTypes.DELETE_ONE_INITIATIVE, (docId: string) => {
+        serverLogger(
+          LoggingTypes.info,
+          `${EmitTypes.DELETE_ONE_INITIATIVE} deleting`,
+          ComponentEnums.SOCKETRECEIVER,
+          docId
+        );
+
+        try {
+          serverLogger(
+            LoggingTypes.debug,
+            `${EmitTypes.DELETE_ONE_INITIATIVE} deleting initiative`,
+            ComponentEnums.SOCKETRECEIVER,
+            docId
+          );
+          const initIndex = store.store.initiativeList
+            .map((record: InitiativeObject) => record.id)
+            .indexOf(docId);
+          store.removeCharacter(initIndex, docId, false);
           toast.add({
             severity: "warn",
             summary: "Warning Message",
@@ -199,380 +509,94 @@ export default defineComponent({
           });
           serverLogger(
             LoggingTypes.info,
-            `${EmitTypes.CREATE_NEW} toast added`,
+            `${EmitTypes.DELETE_ONE_INITIATIVE} toast added, init deletion completed`,
             ComponentEnums.SOCKETRECEIVER,
-            data.payload.id
+            docId
           );
-          if (isInitiativeObject(data.payload)) {
-            serverLogger(
-              LoggingTypes.debug,
-              `${EmitTypes.CREATE_NEW} changing isCurrent to false for all initiative`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload.id
-            );
-            try {
-              store.alltoFalse();
-              store.store.initiativeList.push(data.payload);
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.CREATE_NEW} added initiative to list`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-            } catch (error) {
-              if (error instanceof Error) {
-                serverLogger(
-                  LoggingTypes.alert,
-                  `${error.message} at ${EmitTypes.CREATE_NEW}`,
-                  ComponentEnums.SOCKETRECEIVER
-                );
-              }
-            }
-          }
-        }
-      });
-      socket?.on(EmitTypes.UPDATE_ALL, (data: ReceiveDataArray) => {
-        if (data.payload.length < 1) {
           return;
-        }
-        serverLogger(
-          LoggingTypes.info,
-          `${EmitTypes.UPDATE_ALL} updating all ${data.collectionType}`,
-          ComponentEnums.SOCKETRECEIVER,
-          data.payload[0].id
-        );
-        if (data.collectionType === CollectionTypes.INITIATIVE) {
-          try {
-            if (isInitiativeObjectArray(data.payload)) {
-              store.updateAll(CollectionTypes.INITIATIVE, data.payload);
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} update complete ${data.collectionType}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload[0].id
-              );
-            }
-            if (data.isSorted !== undefined) {
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} updating isSorted ${data.collectionType}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload[0].id
-              );
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} store.isSorted ${store.store.isSorted}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload[0].id
-              );
-              store.updateSorted(data.isSorted);
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} isSorted updated: ${data.isSorted}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload[0].id
-              );
-            }
-            return;
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.UPDATE_ALL}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-        if (data.collectionType === CollectionTypes.SPELLS) {
-          if (isServerObjectArray(data.payload)) {
+        } catch (error) {
+          if (error instanceof Error) {
             serverLogger(
-              LoggingTypes.debug,
-              `${EmitTypes.UPDATE_ALL} creating spell object`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload[0].id
+              LoggingTypes.alert,
+              `${error.message} at ${EmitTypes.DELETE_ONE_INITIATIVE}`,
+              ComponentEnums.SOCKETRECEIVER
             );
-            try {
-              let spellsArray = [] as SpellObject[];
-              data.payload.forEach((item: ServerSpellObject, index) => {
-                let characterIds = store.spellsDoubleArray(item.characterIds);
-                spellsArray.push({
-                  effectName: item.effectName,
-                  effectDescription: item.effectDescription,
-                  characterIds: characterIds,
-                  id: item.id,
-                  durationTime: item.durationTime,
-                  durationType: item.durationType,
-                });
-                serverLogger(
-                  LoggingTypes.debug,
-                  `${EmitTypes.UPDATE_ALL} spell object added`,
-                  ComponentEnums.SOCKETRECEIVER,
-                  item.id
-                );
-              });
-              store.updateAll(CollectionTypes.SPELLS, spellsArray);
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} update complete ${data.collectionType}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload[0].id
-              );
-              return;
-            } catch (error) {
-              if (error instanceof Error) {
-                serverLogger(
-                  LoggingTypes.alert,
-                  `${error.message} at ${EmitTypes.UPDATE_ALL}`,
-                  ComponentEnums.SOCKETRECEIVER
-                );
-              }
-            }
           }
         }
       });
-      socket?.on(EmitTypes.UPDATE_RECORD, (data: ReceiveDataObject) => {
-        serverLogger(
-          LoggingTypes.info,
-          `${EmitTypes.UPDATE_ALL} updating ${data.collectionType}`,
-          ComponentEnums.SOCKETRECEIVER,
-          data.payload.id
-        );
-        if (data.collectionType === CollectionTypes.INITIATIVE) {
-          try {
-            if (isInitiativeObject(data.payload)) {
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.UPDATE_ALL} updating initiative`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              store.updateCharacterRecord(data.payload, false);
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.UPDATE_ALL}  update complete ${data.collectionType}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-              return;
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.UPDATE_ALL}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-        if (data.collectionType === CollectionTypes.SPELLS) {
-          try {
-            if (isServerSpellObject(data.payload)) {
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.UPDATE_ALL} creating spell object`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              const characterIds = store.spellsDoubleArray(
-                data.payload.characterIds
-              );
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.UPDATE_ALL} characterIds complete`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              serverLogger(
-                LoggingTypes.debug,
-                `${EmitTypes.UPDATE_ALL} updating spells`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-              const spellIndex = store.store.spells
-                .map((spell: SpellObject) => spell.id)
-                .indexOf(data.payload.id);
-              store.updateSpell(
-                data.payload.effectName,
-                data.payload.effectDescription,
-                data.payload.durationTime,
-                data.payload.durationType,
-                spellIndex,
-                false,
-                characterIds
-              );
-              serverLogger(
-                LoggingTypes.info,
-                `${EmitTypes.UPDATE_ALL} update complete ${data.collectionType}`,
-                ComponentEnums.SOCKETRECEIVER,
-                data.payload.id
-              );
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.UPDATE_ALL}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-      });
-      socket?.on(EmitTypes.UPDATE_ITEM, (data: UpdateItemObject) => {
-        serverLogger(
-          LoggingTypes.info,
-          `${EmitTypes.UPDATE_ITEM} updating: ${data.collectionType}`,
-          ComponentEnums.SOCKETRECEIVER,
-          data.payload.docId
-        );
-        if (data.collectionType === CollectionTypes.INITIATIVE) {
-          try {
-            serverLogger(
-              LoggingTypes.debug,
-              `${EmitTypes.UPDATE_ITEM} item to update: ${data.payload.ObjectType} value: ${data.payload.toUpdate}`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload.docId
-            );
-            const initIndex = store.store.initiativeList
-              .map((record: InitiativeObject) => record.id)
-              .indexOf(data.payload.docId);
-            store.updateCharacterItem(
-              data.payload.ObjectType as InitiativeObjectEnums,
-              data.payload.toUpdate,
-              initIndex,
-              false
-            );
-            serverLogger(
-              LoggingTypes.info,
-              `${EmitTypes.UPDATE_ITEM} update complete ${data.collectionType}`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload.docId
-            );
-            return;
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.UPDATE_ITEM}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-        if (data.collectionType === CollectionTypes.SPELLS) {
-          try {
-            serverLogger(
-              LoggingTypes.debug,
-              `${EmitTypes.UPDATE_ITEM} item to update: ${data.payload.ObjectType} value: ${data.payload.toUpdate}`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload.docId
-            );
-            const spellIndex = store.store.spells
-              .map((spell: SpellObject) => spell.id)
-              .indexOf(data.payload.docId);
-            store.updateSpellItem(
-              data.payload.ObjectType as SpellObjectEnums,
-              data.payload.toUpdate,
-              spellIndex
-            );
-            serverLogger(
-              LoggingTypes.info,
-              `${EmitTypes.UPDATE_ITEM} update complete ${data.collectionType}`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.payload.docId
-            );
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.UPDATE_ITEM}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-      });
-
-      socket?.on(EmitTypes.DELETE_ONE, (data: DeleteOneObject) => {
-        serverLogger(
-          LoggingTypes.info,
-          `${EmitTypes.DELETE_ONE} deleting ${data.collectionType}`,
-          ComponentEnums.SOCKETRECEIVER,
-          data.id
-        );
-        if (data.collectionType === CollectionTypes.INITIATIVE) {
-          try {
-            serverLogger(
-              LoggingTypes.debug,
-              `${EmitTypes.DELETE_ONE} deleting initiative`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.id
-            );
-            const initIndex = store.store.initiativeList
-              .map((record: InitiativeObject) => record.id)
-              .indexOf(data.id);
-            store.removeCharacter(initIndex, data.id, false);
-            toast.add({
-              severity: "warn",
-              summary: "Warning Message",
-              detail:
-                "Initiative has been reset. Please click Round Start to Resort.",
-              life: 3000,
-            });
-            serverLogger(
-              LoggingTypes.info,
-              `${EmitTypes.DELETE_ONE} toast added, init deletion completed`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.id
-            );
-            return;
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.DELETE_ONE}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-        if (data.collectionType === CollectionTypes.SPELLS) {
-          try {
-            const spellIndex = store.store.spells
-              .map((spell: SpellObject) => spell.id)
-              .indexOf(data.id);
-            store.removeSpell(spellIndex, data.id, false);
-            serverLogger(
-              LoggingTypes.info,
-              `${EmitTypes.DELETE_ONE} spell deletion completed`,
-              ComponentEnums.SOCKETRECEIVER,
-              data.id
-            );
-          } catch (error) {
-            if (error instanceof Error) {
-              serverLogger(
-                LoggingTypes.alert,
-                `${error.message} at ${EmitTypes.DELETE_ONE}`,
-                ComponentEnums.SOCKETRECEIVER
-              );
-            }
-          }
-        }
-      });
-      socket?.on(EmitTypes.DELETE_ALL, () => {
+      socket?.on(EmitTypes.DELETE_ONE_SPELL, (docId: string) => {
         try {
-          store.resetAll(false);
+          const spellIndex = store.store.spells
+            .map((spell: SpellObject) => spell.id)
+            .indexOf(docId);
+          if (spellIndex < 0) {
+            serverLogger(
+              LoggingTypes.warning,
+              `${EmitTypes.DELETE_ONE_SPELL} Doc ID not found. Most likely sending over a deleted object or initiative object ${docId}`,
+              ComponentEnums.SOCKETRECEIVER,
+              docId
+            );
+          }
+          store.removeSpell(spellIndex, docId, false);
           serverLogger(
             LoggingTypes.info,
-            `${EmitTypes.DELETE_ALL} reset complete`,
+            `${EmitTypes.DELETE_ONE_SPELL} spell deletion completed`,
+            ComponentEnums.SOCKETRECEIVER,
+            docId
+          );
+        } catch (error) {
+          if (error instanceof Error) {
+            serverLogger(
+              LoggingTypes.alert,
+              `${error.message} at ${EmitTypes.DELETE_ONE_SPELL}`,
+              ComponentEnums.SOCKETRECEIVER
+            );
+          }
+        }
+      });
+      socket?.on(EmitTypes.DELETE_ALL_INITIATIVE, () => {
+        try {
+          store.resetInitiative(false);
+          toast.add({
+            severity: "warn",
+            summary: "Warning Message",
+            detail: "Rounds have been reset.",
+            life: 3000,
+          });
+          serverLogger(
+            LoggingTypes.info,
+            `${EmitTypes.DELETE_ALL_INITIATIVE} reset complete`,
             ComponentEnums.SOCKETRECEIVER
           );
         } catch (error) {
           if (error instanceof Error) {
             serverLogger(
               LoggingTypes.alert,
-              `${error.message} at ${EmitTypes.DELETE_ALL}`,
+              `${error.message} at ${EmitTypes.DELETE_ALL_INITIATIVE}`,
+              ComponentEnums.SOCKETRECEIVER
+            );
+          }
+        }
+      });
+      socket?.on(EmitTypes.DELETE_ALL_SPELL, () => {
+        try {
+          store.resetSpells(false);
+          toast.add({
+            severity: "warn",
+            summary: "Warning Message",
+            detail: "Spells have been reset.",
+            life: 3000,
+          });
+          serverLogger(
+            LoggingTypes.info,
+            `${EmitTypes.DELETE_ALL_SPELL} reset complete`,
+            ComponentEnums.SOCKETRECEIVER
+          );
+        } catch (error) {
+          if (error instanceof Error) {
+            serverLogger(
+              LoggingTypes.alert,
+              `${error.message} at ${EmitTypes.DELETE_ALL_SPELL}`,
               ComponentEnums.SOCKETRECEIVER
             );
           }
@@ -611,7 +635,7 @@ export default defineComponent({
           if (error instanceof Error) {
             serverLogger(
               LoggingTypes.alert,
-              `${error.message} at ${EmitTypes.DELETE_ALL}`,
+              `${error.message} at ${EmitTypes.NEXT}`,
               ComponentEnums.SOCKETRECEIVER
             );
           }
@@ -650,11 +674,19 @@ export default defineComponent({
           if (error instanceof Error) {
             serverLogger(
               LoggingTypes.alert,
-              `${error.message} at ${EmitTypes.DELETE_ALL}`,
+              `${error.message} at ${EmitTypes.PREVIOUS}`,
               ComponentEnums.SOCKETRECEIVER
             );
           }
         }
+      });
+    });
+    socket?.on(EmitTypes.ROUND_START, () => {
+      toast.add({
+        severity: "info",
+        summary: "Round Start",
+        detail: "Initiative has been sorted. Rounds have started.",
+        life: 3000,
       });
     });
     return { display, currentName, statuses, isArray };
